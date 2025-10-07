@@ -10,6 +10,34 @@ Users can input obstacle data via text/CSV format, and the system processes this
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Updates (October 2025)
+
+### Critical Height Parsing Fix
+- **Issue**: Application was not correctly extracting obstacle heights from pasted data
+- **Fix**: Implemented proper MSL/AGL height extraction:
+  - Second-to-last number in each line = MSL (Mean Sea Level)
+  - Last number in each line = AGL (Above Ground Level)
+  - Numbers extracted only from AFTER coordinates to avoid coordinate digits
+  - Handles AGL-only data by calculating MSL = AGL + airport elevation
+
+### Part 77 Penetration Calculation Fix
+- **Issue**: Penetration analysis was using incorrect height comparisons
+- **Fix**: Implemented proper MSL-based comparison:
+  - obstacleHeightRelativeToAirport = obstacleMSL - airportMSL
+  - This is the FAA-correct way to determine if an obstacle penetrates Part 77 surfaces
+  - Ensures accurate penetration detection regardless of ground elevation differences
+
+### Airport Without Runways Support
+- **Issue**: Airports without runway data were incorrectly marked as "clear"
+- **Fix**: Modified Part 77 calculator to:
+  - Check horizontal and conical surfaces even when no runways exist
+  - Only skip runway-dependent surfaces (primary, approach, transitional)
+  - Prevents false negatives for seaplane bases and heliports
+
+### Obstacle Filtering
+- **Confirmed**: Application correctly filters "determined" status obstacles
+- All other obstacles are analyzed and plotted on map as required
+
 ## System Architecture
 
 ### Frontend Architecture
@@ -47,6 +75,8 @@ Preferred communication style: Simple, everyday language.
 - RESTful endpoint: `/api/analyze-obstacles` (POST)
 - Text-based obstacle input parsing (supports DMS coordinate format)
 - Synchronous processing with in-memory calculations
+- Extracts MSL (Mean Sea Level) and AGL (Above Ground Level) heights from obstacle data
+- Filters out obstacles with "determined" status (case-insensitive)
 
 **Business Logic Services:**
 - `airportData.ts`: CSV parsing and filtering for Washington State airports/runways
@@ -57,6 +87,9 @@ Preferred communication style: Simple, everyday language.
 - In-memory storage implementation (MemStorage class)
 - CSV data loaded from attached_assets directory
 - Real-time obstacle analysis against regulatory surfaces
+- MSL-based penetration calculation: obstacleHeightRelativeToAirport = obstacleMSL - airportMSL
+- Handles obstacles with both MSL+AGL or AGL-only heights
+- Works with airports that have no runway data (checks horizontal/conical surfaces)
 
 ### Data Storage
 
