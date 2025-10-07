@@ -16,3 +16,67 @@ export const insertUserSchema = createInsertSchema(users).pick({
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+// Airport data schema (from CSV)
+export const airportSchema = z.object({
+  id: z.string(),
+  ident: z.string(),
+  type: z.string(),
+  name: z.string(),
+  latitude_deg: z.number(),
+  longitude_deg: z.number(),
+  elevation_ft: z.number().nullable(),
+  icao_code: z.string().nullable(),
+  iata_code: z.string().nullable(),
+  iso_region: z.string().nullable(),
+});
+
+export type Airport = z.infer<typeof airportSchema>;
+
+// Runway data schema (from CSV)
+export const runwaySchema = z.object({
+  airport_id: z.string(),
+  designator: z.string(),
+  length: z.number(),
+  width: z.number(),
+  surface: z.string().nullable(),
+});
+
+export type Runway = z.infer<typeof runwaySchema>;
+
+// Parsed obstacle from text input
+export const obstacleInputSchema = z.object({
+  id: z.string(),
+  obstacleId: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  height: z.number().optional(),
+  type: z.string().optional(),
+  status: z.string().optional(), // To filter out "determined"
+});
+
+export type ObstacleInput = z.infer<typeof obstacleInputSchema>;
+
+// Part 77 Surface Types
+export type SurfaceType = 
+  | "Primary Surface"
+  | "Approach Surface" 
+  | "Transitional Surface"
+  | "Horizontal Surface"
+  | "Conical Surface";
+
+// Part 77 Analysis Result
+export const part77ResultSchema = z.object({
+  id: z.string(),
+  obstacleId: z.string(),
+  nearestAirport: z.string(),
+  airportName: z.string(),
+  distance: z.number(), // in nautical miles
+  obstacleHeight: z.number(),
+  surfaceType: z.string(),
+  status: z.enum(["penetration", "warning", "clear"]),
+  latitude: z.number(),
+  longitude: z.number(),
+});
+
+export type Part77Result = z.infer<typeof part77ResultSchema>;
