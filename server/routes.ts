@@ -59,12 +59,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Extract obstacle ID (first word/sequence)
             const obstacleId = line.split(/\s+/)[0] || `OBS-${i + 1}`;
             
+            // Extract height in feet - look for patterns like "485 FT", "328FT", "485 ft AGL", etc.
+            let height = 0;
+            const heightMatch = line.match(/(\d+)\s*(?:FT|ft|feet|Feet)(?:\s+(?:AGL|MSL|agl|msl))?/i);
+            if (heightMatch) {
+              height = parseInt(heightMatch[1], 10);
+            }
+            
             obstacles.push({
               id: `${i + 1}`,
               obstacleId,
               latitude,
               longitude,
-              height: 0, // Will be extracted if available in future
+              height,
               status: '', // Placeholder
             });
           }

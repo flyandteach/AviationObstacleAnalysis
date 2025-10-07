@@ -21,56 +21,102 @@ export function analyzePart77(
   distanceNM: number
 ): SurfacePenetration {
   const distanceFeet = distanceNM * 6076.12; // Convert NM to feet
-  const obstacleHeight = obstacle.height || 0;
+  
+  // Height is already AGL (Above Ground Level) from FAA data
+  const obstacleAGL = obstacle.height || 0;
   const airportElevation = airport.elevation_ft || 0;
-  const obstacleAGL = obstacleHeight - airportElevation; // Above Ground Level
   
   // Get runways for this airport
   const runways = getRunwaysForAirport(airport.id);
+  
+  // If no runways, can't perform analysis
+  if (!runways || runways.length === 0) {
+    return {
+      penetrates: false,
+      surfaceType: "Horizontal Surface",
+    };
+  }
+  
   const longestRunway = runways.reduce((max, r) => r.length > max.length ? r : max, runways[0]);
   const runwayLength = longestRunway?.length || 0;
 
-  // Determine runway category based on length
-  const isLongRunway = runwayLength >= 3200; // Utility vs larger runways
+  // Determine runway category based on Part 77.17
+  // Utility runway: < 3200 ft
+  // Other than utility: >= 3200 ft
+  // Large aircraft (> 12,500 lbs): additional considerations
+  const isUtilityRunway = runwayLength < 3200;
   
-  // Part 77 Surface Definitions (simplified)
+  // Part 77 Surface Definitions per 14 CFR Part 77.17-77.29
   
-  // 1. PRIMARY SURFACE
+  // 1. PRIMARY SURFACE (Part 77.25)
   // Rectangle centered on runway, width varies by runway type
-  const primarySurfaceWidth = isLongRunway ? 1000 : 500; // feet
-  const primarySurfaceLength = runwayLength + 400; // 200 ft beyond each end
+  const primarySurfaceWidth = isUtilityRunway ? 250 : 500; // feet (each side of centerline)
+  const primarySurfaceLength = runwayLength + 200; // 200 ft beyond each end
   
-  // If very close to airport, check primary surface
-  if (distanceFeet < primarySurfaceLength / 2) {
-    return {
-      penetrates: obstacleAGL > 0,
-      surfaceType: "Primary Surface",
-      penetrationHeight: obstacleAGL > 0 ? obstacleAGL : undefined,
-    };
+  // 2. APPROACH SURFACE (Part 77.25)
+  // Trapezoidal surface extending from runway ends
+  // Slopes vary by runway type per Part 77.25(a)
+  let approachSlope: number;
+  let approachLength: number;
+  
+  if (isUtilityRunway) {
+    // Utility runways: 20:1 slope, 5,000 ft length
+    approachSlope = 20;
+    approachLength = 5000;
+  } else {
+    // Other than utility: varies by approach type
+    // Visual runway: 20:1, non-precision: 34:1, precision: 50:1
+    // Using 34:1 as conservative default
+    approachSlope = 34;
+    approachLength = 10000;
+  }
+  
+  // Check approach surface
+  if (distanceFeet < approachLength + primarySurfaceLength / 2) {
+    const distanceFromRunwayEnd = distanceFeet - primarySurfaceLength / 2;
+    if (distanceFromRunwayEnd > 0) {
+      const approachSurfaceHeight = distanceFromRunwayEnd / approachSlope;
+      if (obstacleAGL > approachSurfaceHeight) {
+        return {
+          penetrates: true,
+          surfaceType: "Approach Surface",
+          penetrationHeight: obstacleAGL - approachSurfaceHeight,
+        };
+      }
+    } else {
+      // Within primary surface - obstacle penetrates if above runway elevation
+      // Primary surface is at runway elevation (assume airport elevation for simplicity)
+      if (obstacleAGL > 0) {
+        return {
+          penetrates: true,
+          surfaceType: "Primary Surface",
+          penetrationHeight: obstacleAGL,
+        };
+      }
+    }
   }
 
-  // 2. APPROACH SURFACE
-  // Trapezoidal surface extending from runway ends
-  // Inner width = primary surface width
-  // Outer width and length vary by runway type
-  const approachLength = isLongRunway ? 10000 : 5000; // feet from runway end
-  const approachSlope = 50; // 50:1 slope
+  // 3. TRANSITIONAL SURFACE (Part 77.25)
+  // 7:1 slope from sides of primary and approach surfaces
+  const transitionalSlope = 7;
+  const maxTransitionalHeight = 150; // Limited by horizontal surface
   
   if (distanceFeet < approachLength) {
-    const approachSurfaceHeight = (distanceFeet - primarySurfaceLength / 2) / approachSlope;
-    if (obstacleAGL > approachSurfaceHeight) {
+    // Simplified: assume lateral offset equals distance from runway
+    const transitionalHeight = Math.min(distanceFeet / transitionalSlope, maxTransitionalHeight);
+    if (obstacleAGL > transitionalHeight) {
       return {
         penetrates: true,
-        surfaceType: "Approach Surface",
-        penetrationHeight: obstacleAGL - approachSurfaceHeight,
+        surfaceType: "Transitional Surface",
+        penetrationHeight: obstacleAGL - transitionalHeight,
       };
     }
   }
 
-  // 3. HORIZONTAL SURFACE
-  // Circular surface at fixed height above airport
-  const horizontalRadius = isLongRunway ? 10000 : 5000; // feet
-  const horizontalHeight = 150; // feet AGL
+  // 4. HORIZONTAL SURFACE (Part 77.25)
+  // Circular surface at 150 ft above airport elevation
+  const horizontalRadius = isUtilityRunway ? 5000 : 10000; // feet
+  const horizontalHeight = 150; // feet above airport elevation
   
   if (distanceFeet < horizontalRadius) {
     if (obstacleAGL > horizontalHeight) {
@@ -82,29 +128,13 @@ export function analyzePart77(
     }
   }
 
-  // 4. TRANSITIONAL SURFACE
-  // 7:1 slope from sides of primary/approach surfaces
-  const transitionalSlope = 7;
-  const lateralDistance = 250; // Approximate lateral distance check
-  
-  if (distanceFeet < approachLength && distanceFeet > primarySurfaceLength / 2) {
-    const transitionalHeight = lateralDistance / transitionalSlope;
-    if (obstacleAGL > transitionalHeight && obstacleAGL < horizontalHeight) {
-      return {
-        penetrates: true,
-        surfaceType: "Transitional Surface",
-        penetrationHeight: obstacleAGL - transitionalHeight,
-      };
-    }
-  }
-
-  // 5. CONICAL SURFACE
+  // 5. CONICAL SURFACE (Part 77.25)
   // 20:1 slope extending beyond horizontal surface
   const conicalInnerRadius = horizontalRadius;
   const conicalOuterRadius = horizontalRadius + 4000; // 4,000 ft beyond horizontal
   const conicalSlope = 20;
   
-  if (distanceFeet > conicalInnerRadius && distanceFeet < conicalOuterRadius) {
+  if (distanceFeet >= conicalInnerRadius && distanceFeet < conicalOuterRadius) {
     const conicalHeight = horizontalHeight + (distanceFeet - conicalInnerRadius) / conicalSlope;
     if (obstacleAGL > conicalHeight) {
       return {
@@ -118,7 +148,7 @@ export function analyzePart77(
   // No penetration detected
   return {
     penetrates: false,
-    surfaceType: "Horizontal Surface", // Default to horizontal for clear obstacles
+    surfaceType: "Horizontal Surface",
   };
 }
 
