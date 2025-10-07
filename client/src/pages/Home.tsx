@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Header from "@/components/Header";
-import FileUpload from "@/components/FileUpload";
+import TextInput from "@/components/TextInput";
 import SummaryCards from "@/components/SummaryCards";
 import ResultsTable, { ObstacleResult } from "@/components/ResultsTable";
 import { Button } from "@/components/ui/button";
@@ -95,16 +95,14 @@ const mockResults: ObstacleResult[] = [
 ];
 
 export default function Home() {
-  const [hasFile, setHasFile] = useState(false);
   const [showResults, setShowResults] = useState(false);
 
-  const handleFileUpload = (file: File) => {
-    console.log('File uploaded:', file.name);
-    setHasFile(true);
+  const handleTextSubmit = (text: string) => {
+    console.log('Text submitted:', text.substring(0, 100));
     // Simulate processing
     setTimeout(() => {
       setShowResults(true);
-    }, 1000);
+    }, 500);
   };
 
   const handleExport = () => {
@@ -133,10 +131,10 @@ export default function Home() {
           </div>
         </div>
 
-        {/* File Upload Section */}
+        {/* Text Input Section */}
         <section className="mb-8">
-          <h2 className="text-xl font-semibold text-foreground mb-4">Upload Obstacle Data</h2>
-          <FileUpload onFileUpload={handleFileUpload} />
+          <h2 className="text-xl font-semibold text-foreground mb-4">Paste Obstacle Data</h2>
+          <TextInput onTextSubmit={handleTextSubmit} />
         </section>
 
         {/* Results Section */}
@@ -175,8 +173,8 @@ export default function Home() {
               Ready to Analyze
             </h3>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              Upload your obstacle data file to begin the Part 77 surface penetration analysis. 
-              Supported formats include CSV, XLS, and XLSX.
+              Paste your obstacle data in the text area above to begin the Part 77 surface penetration analysis. 
+              Supports CSV format or tab-delimited text.
             </p>
           </div>
         )}
