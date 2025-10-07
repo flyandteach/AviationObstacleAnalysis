@@ -5,7 +5,9 @@ import SummaryCards from "@/components/SummaryCards";
 import ResultsTable, { ObstacleResult } from "@/components/ResultsTable";
 import ObstacleMap, { MapObstacle } from "@/components/ObstacleMap";
 import { Button } from "@/components/ui/button";
-import { Download, Info } from "lucide-react";
+import { Download, Info, Loader2 } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 // todo: remove mock functionality
 // Obstacle coordinates offset from airports by realistic distances
@@ -179,22 +181,49 @@ function parseObstacleData(text: string): ObstacleResult[] {
 export default function Home() {
   const [showResults, setShowResults] = useState(false);
   const [results, setResults] = useState<ObstacleResult[]>(mockResults);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  const handleTextSubmit = (text: string) => {
-    console.log('Text submitted, parsing obstacles...');
+  const handleTextSubmit = async (text: string) => {
+    setIsLoading(true);
     
-    // Parse the pasted text
-    const parsedResults = parseObstacleData(text);
-    console.log(`Parsed ${parsedResults.length} obstacles (excluding "determined" status)`);
-    
-    if (parsedResults.length > 0) {
-      setResults(parsedResults);
-      setShowResults(true);
-    } else {
-      // Fall back to mock data if parsing fails
-      console.log('No obstacles parsed, using mock data');
+    try {
+      console.log('Submitting obstacle data to API...');
+      
+      // Call backend API
+      const res = await apiRequest('POST', '/api/analyze-obstacles', { text });
+      const response: {
+        success: boolean;
+        count: number;
+        results: ObstacleResult[];
+      } = await res.json();
+
+      if (response.success && response.results.length > 0) {
+        console.log(`Analyzed ${response.count} obstacles`);
+        setResults(response.results);
+        setShowResults(true);
+        
+        toast({
+          title: "Analysis Complete",
+          description: `Successfully analyzed ${response.count} obstacles (excluded "determined" status)`,
+        });
+      } else {
+        throw new Error('No obstacles found');
+      }
+    } catch (error) {
+      console.error('Error analyzing obstacles:', error);
+      
+      toast({
+        title: "Analysis Failed",
+        description: error instanceof Error ? error.message : "Failed to analyze obstacles. Please check your input format.",
+        variant: "destructive",
+      });
+      
+      // Fall back to mock data for demo purposes
       setResults(mockResults);
       setShowResults(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -226,7 +255,15 @@ export default function Home() {
 
         {/* Text Input Section */}
         <section className="mb-8">
-          <h2 className="text-xl font-semibold text-foreground mb-4">Paste Obstacle Data</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-foreground">Paste Obstacle Data</h2>
+            {isLoading && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Analyzing...</span>
+              </div>
+            )}
+          </div>
           <TextInput onTextSubmit={handleTextSubmit} />
         </section>
 
