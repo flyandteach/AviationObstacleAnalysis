@@ -96,15 +96,106 @@ const mockResults: ObstacleResult[] = [
   }
 ];
 
+// Convert DMS (Degrees Minutes Seconds) to decimal degrees
+function dmsToDecimal(dmsString: string): number | null {
+  const match = dmsString.match(/(\d+)°\s*(\d+)'\s*([\d.]+)"\s*([NSEW])/);
+  if (!match) return null;
+  
+  const degrees = parseFloat(match[1]);
+  const minutes = parseFloat(match[2]);
+  const seconds = parseFloat(match[3]);
+  const direction = match[4];
+  
+  let decimal = degrees + minutes / 60 + seconds / 3600;
+  
+  if (direction === 'S' || direction === 'W') {
+    decimal = -decimal;
+  }
+  
+  return decimal;
+}
+
+// Parse obstacle data from pasted text
+function parseObstacleData(text: string): ObstacleResult[] {
+  const lines = text.split('\n').filter(line => line.trim());
+  const results: ObstacleResult[] = [];
+  
+  lines.forEach((line, index) => {
+    // Skip if contains "Determined" (case insensitive)
+    if (line.toLowerCase().includes('determined')) {
+      return;
+    }
+    
+    // Extract coordinates using regex for DMS format
+    const latMatch = line.match(/(\d+)°\s*(\d+)'\s*([\d.]+)"\s*([NS])/);
+    const lonMatch = line.match(/(\d+)°\s*(\d+)'\s*([\d.]+)"\s*([EW])/);
+    
+    if (latMatch && lonMatch) {
+      const latitude = dmsToDecimal(latMatch[0]);
+      const longitude = dmsToDecimal(lonMatch[0]);
+      
+      if (latitude !== null && longitude !== null) {
+        // Extract obstacle ID (first part before space)
+        const obstacleId = line.split(/\s+/)[0] || `OBS-${index + 1}`;
+        
+        // Mock Part 77 analysis (will be replaced with real calculations later)
+        const mockStatuses: ("penetration" | "warning" | "clear")[] = ["penetration", "warning", "clear"];
+        const mockAirports = [
+          { code: "SEA", name: "Seattle-Tacoma Intl" },
+          { code: "GEG", name: "Spokane International" },
+          { code: "BFI", name: "Boeing Field" },
+          { code: "PSC", name: "Tri-Cities Airport" },
+          { code: "OLM", name: "Olympia Regional" },
+          { code: "ALW", name: "Walla Walla Regional" },
+          { code: "ELN", name: "Bowers Field" }
+        ];
+        
+        const randomAirport = mockAirports[Math.floor(Math.random() * mockAirports.length)];
+        const randomDistance = Math.random() * 2;
+        const randomHeight = Math.floor(Math.random() * 300) + 50;
+        const randomStatus = mockStatuses[Math.floor(Math.random() * mockStatuses.length)];
+        const surfaces = ["Approach Surface", "Primary Surface", "Horizontal Surface", "Transitional Surface", "Conical Surface"];
+        const randomSurface = surfaces[Math.floor(Math.random() * surfaces.length)];
+        
+        results.push({
+          id: `${index + 1}`,
+          obstacleId,
+          nearestAirport: randomAirport.code,
+          airportName: randomAirport.name,
+          distance: parseFloat(randomDistance.toFixed(2)),
+          obstacleHeight: randomHeight,
+          surfaceType: randomSurface,
+          status: randomStatus,
+          latitude,
+          longitude
+        });
+      }
+    }
+  });
+  
+  return results;
+}
+
 export default function Home() {
   const [showResults, setShowResults] = useState(false);
+  const [results, setResults] = useState<ObstacleResult[]>(mockResults);
 
   const handleTextSubmit = (text: string) => {
-    console.log('Text submitted:', text.substring(0, 100));
-    // Simulate processing
-    setTimeout(() => {
+    console.log('Text submitted, parsing obstacles...');
+    
+    // Parse the pasted text
+    const parsedResults = parseObstacleData(text);
+    console.log(`Parsed ${parsedResults.length} obstacles (excluding "determined" status)`);
+    
+    if (parsedResults.length > 0) {
+      setResults(parsedResults);
       setShowResults(true);
-    }, 500);
+    } else {
+      // Fall back to mock data if parsing fails
+      console.log('No obstacles parsed, using mock data');
+      setResults(mockResults);
+      setShowResults(true);
+    }
   };
 
   const handleExport = () => {
@@ -151,21 +242,21 @@ export default function Home() {
                 </Button>
               </div>
               <SummaryCards
-                totalObstacles={mockResults.length}
+                totalObstacles={results.length}
                 airportsChecked={6}
-                penetrations={mockResults.filter(r => r.status === "penetration").length}
-                warnings={mockResults.filter(r => r.status === "warning").length}
+                penetrations={results.filter(r => r.status === "penetration").length}
+                warnings={results.filter(r => r.status === "warning").length}
               />
             </section>
 
             <section className="mb-8">
               <h2 className="text-xl font-semibold text-foreground mb-4">Map View</h2>
-              <ObstacleMap obstacles={mockResults as MapObstacle[]} />
+              <ObstacleMap obstacles={results as MapObstacle[]} />
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-foreground mb-4">Detailed Results</h2>
-              <ResultsTable results={mockResults} />
+              <ResultsTable results={results} />
             </section>
           </>
         )}
