@@ -59,11 +59,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Extract obstacle ID (first word/sequence)
             const obstacleId = line.split(/\s+/)[0] || `OBS-${i + 1}`;
             
-            // Extract height in feet - look for patterns like "485 FT", "328FT", "485 ft AGL", etc.
-            let height = 0;
-            const heightMatch = line.match(/(\d+)\s*(?:FT|ft|feet|Feet)(?:\s+(?:AGL|MSL|agl|msl))?/i);
-            if (heightMatch) {
-              height = parseInt(heightMatch[1], 10);
+            // Extract numbers from the portion AFTER coordinates
+            // User clarified: second to last number = MSL, last number = AGL
+            const coordEndIndex = Math.max(
+              line.indexOf(lonMatch[0]) + lonMatch[0].length,
+              line.indexOf(latMatch[0]) + latMatch[0].length
+            );
+            const afterCoords = line.substring(coordEndIndex);
+            const numbersAfterCoords = afterCoords.match(/\d+/g);
+            
+            let heightMSL = 0;
+            let heightAGL = 0;
+            
+            if (numbersAfterCoords && numbersAfterCoords.length >= 2) {
+              // Last number = AGL (height above ground)
+              heightAGL = parseInt(numbersAfterCoords[numbersAfterCoords.length - 1], 10);
+              // Second to last number = MSL (height above sea level)
+              heightMSL = parseInt(numbersAfterCoords[numbersAfterCoords.length - 2], 10);
+            } else if (numbersAfterCoords && numbersAfterCoords.length === 1) {
+              // If only one number, treat it as AGL
+              heightAGL = parseInt(numbersAfterCoords[0], 10);
             }
             
             obstacles.push({
@@ -71,7 +86,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               obstacleId,
               latitude,
               longitude,
-              height,
+              heightMSL,
+              heightAGL,
               status: '', // Placeholder
             });
           }
@@ -85,12 +101,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Analyze each obstacle
       const results = [];
       for (let i = 0; i < obstacles.length; i++) {
-        const obstacle = obstacles[i];
+        let obstacle = obstacles[i];
         
         // Find nearest airport
         const nearestResult = findNearestAirport(obstacle);
         if (!nearestResult) {
           continue;
+        }
+
+        // If we only have AGL but not MSL, calculate MSL from AGL + airport elevation
+        if ((!obstacle.heightMSL || obstacle.heightMSL === 0) && obstacle.heightAGL) {
+          const airportElevation = nearestResult.airport.elevation_ft || 0;
+          obstacle = {
+            ...obstacle,
+            heightMSL: obstacle.heightAGL + airportElevation
+          };
         }
 
         // Perform Part 77 analysis

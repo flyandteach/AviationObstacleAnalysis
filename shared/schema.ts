@@ -50,7 +50,8 @@ export const obstacleInputSchema = z.object({
   obstacleId: z.string(),
   latitude: z.number(),
   longitude: z.number(),
-  height: z.number().optional(),
+  heightMSL: z.number().optional(), // Mean Sea Level - second to last number
+  heightAGL: z.number().optional(), // Above Ground Level - last number
   type: z.string().optional(),
   status: z.string().optional(), // To filter out "determined"
 });
