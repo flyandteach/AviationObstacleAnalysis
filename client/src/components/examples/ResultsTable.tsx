@@ -1,6 +1,7 @@
 import ResultsTable, { ObstacleResult } from '../ResultsTable';
 
 // todo: remove mock functionality
+// Obstacle coordinates offset from airports by realistic distances
 const mockResults: ObstacleResult[] = [
   {
     id: "1",
@@ -11,8 +12,8 @@ const mockResults: ObstacleResult[] = [
     obstacleHeight: 215,
     surfaceType: "Approach Surface",
     status: "penetration",
-    latitude: 47.4502,
-    longitude: -122.3088
+    latitude: 47.4434,
+    longitude: -122.3156
   },
   {
     id: "2",
@@ -23,8 +24,8 @@ const mockResults: ObstacleResult[] = [
     obstacleHeight: 178,
     surfaceType: "Horizontal Surface",
     status: "warning",
-    latitude: 47.6199,
-    longitude: -117.5339
+    latitude: 47.6385,
+    longitude: -117.5512
   },
   {
     id: "3",
@@ -35,8 +36,8 @@ const mockResults: ObstacleResult[] = [
     obstacleHeight: 95,
     surfaceType: "Transitional Surface",
     status: "clear",
-    latitude: 47.5300,
-    longitude: -122.3019
+    latitude: 47.5389,
+    longitude: -122.3145
   },
   {
     id: "4",
@@ -47,8 +48,8 @@ const mockResults: ObstacleResult[] = [
     obstacleHeight: 142,
     surfaceType: "Transitional Surface",
     status: "warning",
-    latitude: 46.2647,
-    longitude: -119.1190
+    latitude: 46.2725,
+    longitude: -119.1278
   },
   {
     id: "5",
@@ -59,8 +60,8 @@ const mockResults: ObstacleResult[] = [
     obstacleHeight: 186,
     surfaceType: "Horizontal Surface",
     status: "penetration",
-    latitude: 46.9694,
-    longitude: -122.9026
+    latitude: 46.9889,
+    longitude: -122.9234
   }
 ];
 

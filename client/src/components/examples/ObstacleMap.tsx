@@ -1,12 +1,13 @@
 import ObstacleMap, { MapObstacle } from '../ObstacleMap';
 
 // todo: remove mock functionality
+// Obstacle coordinates offset from airports
 const mockObstacles: MapObstacle[] = [
   {
     id: "1",
     obstacleId: "OBS-2024-001",
-    latitude: 47.4502,
-    longitude: -122.3088,
+    latitude: 47.4434,
+    longitude: -122.3156,
     obstacleHeight: 215,
     nearestAirport: "SEA",
     airportName: "Seattle-Tacoma Intl",
@@ -17,8 +18,8 @@ const mockObstacles: MapObstacle[] = [
   {
     id: "2",
     obstacleId: "OBS-2024-002",
-    latitude: 47.6199,
-    longitude: -117.5339,
+    latitude: 47.6385,
+    longitude: -117.5512,
     obstacleHeight: 178,
     nearestAirport: "GEG",
     airportName: "Spokane International",
@@ -29,8 +30,8 @@ const mockObstacles: MapObstacle[] = [
   {
     id: "3",
     obstacleId: "OBS-2024-003",
-    latitude: 47.5300,
-    longitude: -122.3019,
+    latitude: 47.5389,
+    longitude: -122.3145,
     obstacleHeight: 95,
     nearestAirport: "BFI",
     airportName: "Boeing Field",

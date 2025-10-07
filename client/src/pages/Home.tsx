@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Info } from "lucide-react";
 
 // todo: remove mock functionality
+// Obstacle coordinates offset from airports by realistic distances
 const mockResults: ObstacleResult[] = [
   {
     id: "1",
@@ -18,8 +19,8 @@ const mockResults: ObstacleResult[] = [
     obstacleHeight: 215,
     surfaceType: "Approach Surface",
     status: "penetration",
-    latitude: 47.4502,
-    longitude: -122.3088
+    latitude: 47.4434, // Offset from SEA (47.4502, -122.3088)
+    longitude: -122.3156
   },
   {
     id: "2",
@@ -30,8 +31,8 @@ const mockResults: ObstacleResult[] = [
     obstacleHeight: 178,
     surfaceType: "Horizontal Surface",
     status: "warning",
-    latitude: 47.6199,
-    longitude: -117.5339
+    latitude: 47.6385, // Offset from GEG (47.6199, -117.5339)
+    longitude: -117.5512
   },
   {
     id: "3",
@@ -42,8 +43,8 @@ const mockResults: ObstacleResult[] = [
     obstacleHeight: 95,
     surfaceType: "Transitional Surface",
     status: "clear",
-    latitude: 47.5300,
-    longitude: -122.3019
+    latitude: 47.5389, // Offset from BFI (47.5300, -122.3019)
+    longitude: -122.3145
   },
   {
     id: "4",
@@ -54,8 +55,8 @@ const mockResults: ObstacleResult[] = [
     obstacleHeight: 142,
     surfaceType: "Transitional Surface",
     status: "warning",
-    latitude: 46.2647,
-    longitude: -119.1190
+    latitude: 46.2725, // Offset from PSC (46.2647, -119.1190)
+    longitude: -119.1278
   },
   {
     id: "5",
@@ -66,8 +67,8 @@ const mockResults: ObstacleResult[] = [
     obstacleHeight: 186,
     surfaceType: "Horizontal Surface",
     status: "penetration",
-    latitude: 46.9694,
-    longitude: -122.9026
+    latitude: 46.9889, // Offset from OLM (46.9694, -122.9026)
+    longitude: -122.9234
   },
   {
     id: "6",
@@ -78,8 +79,8 @@ const mockResults: ObstacleResult[] = [
     obstacleHeight: 68,
     surfaceType: "Primary Surface",
     status: "clear",
-    latitude: 46.0949,
-    longitude: -118.2880
+    latitude: 46.0978, // Offset from ALW (46.0949, -118.2880)
+    longitude: -118.2912
   },
   {
     id: "7",
@@ -90,8 +91,8 @@ const mockResults: ObstacleResult[] = [
     obstacleHeight: 125,
     surfaceType: "Approach Surface",
     status: "clear",
-    latitude: 46.6743,
-    longitude: -120.5309
+    latitude: 46.6834, // Offset from ELN (46.6743, -120.5309)
+    longitude: -120.5423
   }
 ];
 
