@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { AlertTriangle, CheckCircle, AlertCircle, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import React from "react";
 
 export interface ObstacleResult {
   id: string;
@@ -85,7 +86,7 @@ export default function ResultsTable({ results }: ResultsTableProps) {
           </thead>
           <tbody className="divide-y divide-border">
             {results.map((result, index) => (
-              <>
+              <React.Fragment key={result.id}>
                 <tr
                   key={result.id}
                   className="hover-elevate cursor-pointer"
@@ -145,7 +146,7 @@ export default function ResultsTable({ results }: ResultsTableProps) {
                     </td>
                   </tr>
                 )}
-              </>
+              </React.Fragment>
             ))}
           </tbody>
         </table>

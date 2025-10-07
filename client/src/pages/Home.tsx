@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import TextInput from "@/components/TextInput";
 import SummaryCards from "@/components/SummaryCards";
 import ResultsTable, { ObstacleResult } from "@/components/ResultsTable";
+import ObstacleMap, { MapObstacle } from "@/components/ObstacleMap";
 import { Button } from "@/components/ui/button";
 import { Download, Info } from "lucide-react";
 
@@ -154,6 +155,11 @@ export default function Home() {
                 penetrations={mockResults.filter(r => r.status === "penetration").length}
                 warnings={mockResults.filter(r => r.status === "warning").length}
               />
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-xl font-semibold text-foreground mb-4">Map View</h2>
+              <ObstacleMap obstacles={mockResults as MapObstacle[]} />
             </section>
 
             <section>
