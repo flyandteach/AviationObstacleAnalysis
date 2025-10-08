@@ -37,6 +37,56 @@ function isMilitaryAirport(name: string): boolean {
 }
 
 /**
+ * Check if an airport is public use based on FAA identifier format
+ * 
+ * Public airports have:
+ * - 3-letter codes (e.g., ORD, LAX, SEA) - major public airports
+ * - 1 letter + 2 numbers (e.g., L35, F70, 8S2) - smaller public airports
+ * 
+ * Private airports have:
+ * - 2 letters + 2 numbers (e.g., 00WA, 3CL4) - contains state abbreviation
+ * 
+ * Reference: FAA identifier format standards
+ */
+function isPublicUseAirport(ident: string): boolean {
+  if (!ident || ident.length === 0) return false;
+  
+  // Remove 'K' prefix if present (ICAO code for continental US)
+  const cleanIdent = ident.startsWith('K') && ident.length === 4 ? ident.substring(1) : ident;
+  
+  // 3-letter codes = public major airports
+  if (/^[A-Z]{3}$/.test(cleanIdent)) {
+    return true;
+  }
+  
+  // 3 characters with mix of letters and numbers (like 09S, L35, F70)
+  // Pattern: exactly 3 characters, with at least one letter and at least one number
+  if (cleanIdent.length === 3) {
+    const hasLetter = /[A-Z]/.test(cleanIdent);
+    const hasNumber = /[0-9]/.test(cleanIdent);
+    const letterCount = (cleanIdent.match(/[A-Z]/g) || []).length;
+    
+    // Public pattern: 1 letter + 2 numbers, or 2 letters + 1 number
+    if (hasLetter && hasNumber && (letterCount <= 2)) {
+      return true;
+    }
+  }
+  
+  // 4 characters with 2 letters + 2 numbers = private (contains state code)
+  if (cleanIdent.length === 4) {
+    const letterCount = (cleanIdent.match(/[A-Z]/g) || []).length;
+    const numberCount = (cleanIdent.match(/[0-9]/g) || []).length;
+    
+    if (letterCount === 2 && numberCount === 2) {
+      return false; // Private airport
+    }
+  }
+  
+  // Default to false for safety (exclude unknown patterns)
+  return false;
+}
+
+/**
  * Load and parse airport data from CSV
  * Filters for Washington state airports only
  * Excludes heliports and military airports
@@ -55,12 +105,13 @@ export function loadAirports(): Airport[] {
     trim: true,
   });
 
-  // Filter for Washington state airports, excluding heliports and military airports
+  // Filter for Washington state airports, excluding heliports, military, and private airports
   airports = records
     .filter((row: any) => {
       if (row.iso_region !== 'US-WA') return false;
       if (row.type === 'heliport') return false;
       if (isMilitaryAirport(row.name)) return false;
+      if (!isPublicUseAirport(row.ident)) return false;
       return true;
     })
     .map((row: any) => ({
@@ -76,7 +127,7 @@ export function loadAirports(): Airport[] {
       iso_region: row.iso_region,
     }));
 
-  console.log(`Loaded ${airports.length} Washington state airports (excluding heliports and military)`);
+  console.log(`Loaded ${airports.length} public use Washington state airports (excluding heliports, military, and private)`);
   return airports;
 }
 

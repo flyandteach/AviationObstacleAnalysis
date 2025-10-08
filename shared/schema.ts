@@ -72,6 +72,8 @@ export const part77ResultSchema = z.object({
   obstacleId: z.string(),
   nearestAirport: z.string(),
   airportName: z.string(),
+  airportLatitude: z.number(),
+  airportLongitude: z.number(),
   distance: z.number(), // in nautical miles
   obstacleHeight: z.number(),
   surfaceType: z.string(),

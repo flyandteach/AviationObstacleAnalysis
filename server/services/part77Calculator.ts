@@ -187,6 +187,8 @@ export function createPart77Result(
     obstacleId: obstacle.obstacleId,
     nearestAirport: airport.ident,
     airportName: airport.name,
+    airportLatitude: airport.latitude_deg,
+    airportLongitude: airport.longitude_deg,
     distance: distanceNM,
     obstacleHeight: obstacle.heightAGL || 0,
     surfaceType: penetration.surfaceType,
