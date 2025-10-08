@@ -32,7 +32,27 @@ Preferred communication style: Simple, everyday language.
 - **Fix**: Modified Part 77 calculator to:
   - Check horizontal and conical surfaces even when no runways exist
   - Only skip runway-dependent surfaces (primary, approach, transitional)
-  - Prevents false negatives for seaplane bases and heliports
+  - Prevents false negatives for seaplane bases
+
+### Military Airport and Heliport Exclusion
+- **Requirement**: Military airports and heliports must not be included in analysis
+- **Implementation**: Airport filtering now excludes:
+  - All heliports (type = "heliport")
+  - Military airports identified by name keywords:
+    - Air Force: Air Force Base, AFB, Air Force
+    - Army: Army, AAF, Army Airfield
+    - Navy: Navy, NAS, Naval
+    - Marine Corps: Marine, MCAS, Marine Corps
+    - Coast Guard: Coast Guard, USCG
+    - Joint/Combined: Joint Base, Military
+    - Air National Guard: Air National Guard, ANG, Air Natl Guard
+- **Result**: 541 civilian airports loaded (down from 752 total Washington airports)
+- **Examples of excluded airports**:
+  - Gray Army Air Field (KGRF)
+  - Fairchild Air Force Base (KSKA)
+  - McChord Air Force Base (KTCM)
+  - Vagabond Army Heliport (KFCT)
+  - All hospital, medical center, and private heliports
 
 ### Obstacle Filtering
 - **Confirmed**: Application correctly filters "determined" status obstacles
@@ -79,7 +99,7 @@ Preferred communication style: Simple, everyday language.
 - Filters out obstacles with "determined" status (case-insensitive)
 
 **Business Logic Services:**
-- `airportData.ts`: CSV parsing and filtering for Washington State airports/runways
+- `airportData.ts`: CSV parsing and filtering for Washington State airports/runways (excludes military airports and heliports)
 - `distanceCalculator.ts`: Haversine formula implementation for geographic distance calculations
 - `part77Calculator.ts`: FAA Part 77 surface penetration analysis following 14 CFR Part 77 regulations
 

@@ -7,8 +7,39 @@ let airports: Airport[] | null = null;
 let runways: Runway[] | null = null;
 
 /**
+ * Check if an airport is military based on name/keywords
+ * 
+ * Keywords cover various military installation naming conventions including:
+ * - Full names (Air Force Base, Army Airfield, etc.)
+ * - Common abbreviations (AFB, AAF, NAS, MCAS, etc.)
+ * - Service-specific terms (Joint Base, USCG, Air National Guard, etc.)
+ */
+function isMilitaryAirport(name: string): boolean {
+  const militaryKeywords = [
+    // Air Force
+    'air force base', 'afb', 'air force',
+    // Army
+    'army', 'aaf', 'army airfield',
+    // Navy
+    'navy', 'nas', 'naval',
+    // Marine Corps
+    'marine', 'mcas', 'marine corps',
+    // Coast Guard
+    'coast guard', 'uscg',
+    // Joint/Combined
+    'joint base', 'military',
+    // Air National Guard
+    'air national guard', 'ang', 'air natl guard'
+  ];
+  
+  const lowerName = name.toLowerCase();
+  return militaryKeywords.some(keyword => lowerName.includes(keyword));
+}
+
+/**
  * Load and parse airport data from CSV
  * Filters for Washington state airports only
+ * Excludes heliports and military airports
  */
 export function loadAirports(): Airport[] {
   if (airports) {
@@ -24,9 +55,14 @@ export function loadAirports(): Airport[] {
     trim: true,
   });
 
-  // Filter for Washington state airports and map to our schema
+  // Filter for Washington state airports, excluding heliports and military airports
   airports = records
-    .filter((row: any) => row.iso_region === 'US-WA')
+    .filter((row: any) => {
+      if (row.iso_region !== 'US-WA') return false;
+      if (row.type === 'heliport') return false;
+      if (isMilitaryAirport(row.name)) return false;
+      return true;
+    })
     .map((row: any) => ({
       id: row.id,
       ident: row.ident,
@@ -40,7 +76,7 @@ export function loadAirports(): Airport[] {
       iso_region: row.iso_region,
     }));
 
-  console.log(`Loaded ${airports.length} Washington state airports`);
+  console.log(`Loaded ${airports.length} Washington state airports (excluding heliports and military)`);
   return airports;
 }
 
