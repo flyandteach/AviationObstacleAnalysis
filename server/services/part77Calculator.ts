@@ -30,11 +30,14 @@ export function analyzePart77(
   
   
   // Get runways for this airport
+  // Note: Due to ID format mismatch between airports (integer IDs) and runways (GUID IDs),
+  // we may not be able to match runways by ID. However, we can still determine approach
+  // types using the runway_approach_types file which uses airport identifiers.
   const runways = getRunwaysForAirport(airport.id);
   const hasRunways = runways && runways.length > 0;
   
   let runwayLength = 0;
-  let isUtilityRunway = true; // Default to utility if no runways
+  let isUtilityRunway = false; // Default to non-utility (more conservative)
   
   if (hasRunways) {
     const longestRunway = runways.reduce((max, r) => r.length > max.length ? r : max, runways[0]);
@@ -66,9 +69,12 @@ export function analyzePart77(
     // Other than utility: determine approach type from runway data
     // Visual runway: 20:1, non-precision: 34:1, precision: 50:1
     
-    // Check all runway ends to find the most demanding approach type
-    let bestApproachType = "VISUAL"; // Default to visual if no data
+    // Determine best approach type for this airport
+    // Start with least restrictive (VISUAL) and escalate when more demanding types are found
+    let bestApproachType = "VISUAL";
+    let approachTypeFound = false;
     
+    // If we have runway records, check each runway end
     if (hasRunways) {
       for (const runway of runways) {
         // Runway designators like "16/34" have two ends
@@ -77,17 +83,49 @@ export function analyzePart77(
         for (const end of ends) {
           const approachType = getRunwayApproachType(airport.ident, end.trim());
           
-          // Use the most demanding approach type found
-          if (approachType === "PREC") {
-            bestApproachType = "PREC";
-            break; // Precision is most demanding, no need to check further
-          } else if (approachType === "NONPREC" && bestApproachType !== "PREC") {
-            bestApproachType = "NONPREC";
+          if (approachType) {
+            approachTypeFound = true;
+            
+            // Escalate to most demanding approach type found
+            if (approachType === "PREC") {
+              bestApproachType = "PREC";
+              break; // Precision is most demanding, no need to check further
+            } else if (approachType === "NONPREC" && bestApproachType !== "PREC") {
+              bestApproachType = "NONPREC";
+            }
+            // If VISUAL, keep current bestApproachType (VISUAL only if no NONPREC/PREC found yet)
           }
         }
         
         if (bestApproachType === "PREC") break;
       }
+    } else {
+      // No runway records found - try to infer from approach type data
+      // Only check a limited set of common runway ends to reduce false positives
+      const commonEnds = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', 
+        '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', 
+        '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36'];
+      
+      for (const end of commonEnds) {
+        const approachType = getRunwayApproachType(airport.ident, end);
+        
+        if (approachType) {
+          approachTypeFound = true;
+          
+          // Escalate to most demanding approach type found
+          if (approachType === "PREC") {
+            bestApproachType = "PREC";
+            break;
+          } else if (approachType === "NONPREC" && bestApproachType !== "PREC") {
+            bestApproachType = "NONPREC";
+          }
+        }
+      }
+    }
+    
+    // If no approach type data was found, use conservative default
+    if (!approachTypeFound) {
+      bestApproachType = "NONPREC"; // 34:1 as conservative middle ground
     }
     
     // Apply slope based on approach type per 14 CFR Part 77.25
@@ -108,8 +146,10 @@ export function analyzePart77(
     }
   }
   
-  // Only check runway-dependent surfaces if runways exist
-  if (hasRunways) {
+  // Check approach and transitional surfaces
+  // These can be checked even if runway records aren't available via ID matching,
+  // as long as we've determined an approach type
+  if (hasRunways || !isUtilityRunway) {
     // Check approach surface
     if (distanceFeet < approachLength + primarySurfaceLength / 2) {
       const distanceFromRunwayEnd = distanceFeet - primarySurfaceLength / 2;

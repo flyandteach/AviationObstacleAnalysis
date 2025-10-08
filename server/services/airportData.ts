@@ -201,7 +201,6 @@ export function loadRunwayApproachTypes(): Map<string, string> {
     }
   }
 
-  console.log(`Loaded ${runwayApproachTypes.size} runway approach type mappings`);
   return runwayApproachTypes;
 }
 
@@ -211,8 +210,28 @@ export function loadRunwayApproachTypes(): Map<string, string> {
  */
 export function getRunwayApproachType(airportIdent: string, runwayEnd: string): string | null {
   const approachTypes = loadRunwayApproachTypes();
-  const key = `${airportIdent}-${runwayEnd}`;
-  return approachTypes.get(key) || null;
+  
+  // Try the identifier as-is first
+  let key = `${airportIdent}-${runwayEnd}`;
+  let result = approachTypes.get(key);
+  
+  if (result) {
+    return result;
+  }
+  
+  // If not found and identifier starts with 'K', try without the ICAO prefix
+  // (e.g., "KS50" -> "S50", "KSEA" -> "SEA")
+  if (airportIdent.startsWith('K') && airportIdent.length === 4) {
+    const identWithoutK = airportIdent.substring(1);
+    key = `${identWithoutK}-${runwayEnd}`;
+    result = approachTypes.get(key);
+    
+    if (result) {
+      return result;
+    }
+  }
+  
+  return null;
 }
 
 /**
