@@ -54,6 +54,28 @@ Preferred communication style: Simple, everyday language.
   - Vagabond Army Heliport (KFCT)
   - All hospital, medical center, and private heliports
 
+### Public Use Airport Filtering
+- **Requirement**: Analysis should only include public use airports (not private airports)
+- **Implementation**: Uses FAA identifier format standards to identify public vs private:
+  - **Public airports** (included):
+    - 3-letter codes (e.g., SEA, ALW, BFI, GEG)
+    - 1 letter + 2 numbers (e.g., L35, F70, 09S)
+    - ICAO codes with 'K' prefix (e.g., KALW, KBFI) - stripped to base code
+  - **Private airports** (excluded):
+    - 2 letters + 2 numbers pattern (e.g., 00WA, 3CL4, 01WN)
+    - Contains state abbreviation in identifier
+- **Result**: 134 public use airports (down from 541 civilian → 752 total)
+- **Reference**: FAA Airport Data and Information Portal standards
+
+### Airport Markers on Map
+- **Feature**: Closest airport is now marked on the interactive map
+- **Implementation**:
+  - Blue markers with airplane icon show airport locations
+  - Airport popup displays identifier and full name
+  - Duplicate airports automatically merged (same airport can be nearest to multiple obstacles)
+  - Map legend includes airport marker indicator
+- **Data flow**: API returns airport coordinates with each obstacle analysis result
+
 ### Obstacle Filtering
 - **Confirmed**: Application correctly filters "determined" status obstacles
 - All other obstacles are analyzed and plotted on map as required
