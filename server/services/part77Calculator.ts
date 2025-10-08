@@ -1,5 +1,5 @@
 import type { Airport, ObstacleInput, Part77Result, SurfaceType } from '@shared/schema';
-import { getRunwaysForAirport } from './airportData';
+import { getRunwaysForAirport, getRunwayApproachType } from './airportData';
 
 /**
  * Part 77 Surface Penetration Analysis
@@ -63,11 +63,49 @@ export function analyzePart77(
     approachSlope = 20;
     approachLength = 5000;
   } else {
-    // Other than utility: varies by approach type
+    // Other than utility: determine approach type from runway data
     // Visual runway: 20:1, non-precision: 34:1, precision: 50:1
-    // Using 34:1 as conservative default
-    approachSlope = 34;
-    approachLength = 10000;
+    
+    // Check all runway ends to find the most demanding approach type
+    let bestApproachType = "VISUAL"; // Default to visual if no data
+    
+    if (hasRunways) {
+      for (const runway of runways) {
+        // Runway designators like "16/34" have two ends
+        const ends = runway.designator.split('/');
+        
+        for (const end of ends) {
+          const approachType = getRunwayApproachType(airport.ident, end.trim());
+          
+          // Use the most demanding approach type found
+          if (approachType === "PREC") {
+            bestApproachType = "PREC";
+            break; // Precision is most demanding, no need to check further
+          } else if (approachType === "NONPREC" && bestApproachType !== "PREC") {
+            bestApproachType = "NONPREC";
+          }
+        }
+        
+        if (bestApproachType === "PREC") break;
+      }
+    }
+    
+    // Apply slope based on approach type per 14 CFR Part 77.25
+    switch (bestApproachType) {
+      case "PREC":
+        approachSlope = 50; // Precision instrument approach
+        approachLength = 10000;
+        break;
+      case "NONPREC":
+        approachSlope = 34; // Non-precision instrument approach
+        approachLength = 10000;
+        break;
+      case "VISUAL":
+      default:
+        approachSlope = 20; // Visual approach
+        approachLength = 10000;
+        break;
+    }
   }
   
   // Only check runway-dependent surfaces if runways exist

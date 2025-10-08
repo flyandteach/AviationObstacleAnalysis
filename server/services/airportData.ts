@@ -5,6 +5,7 @@ import type { Airport, Runway } from '@shared/schema';
 
 let airports: Airport[] | null = null;
 let runways: Runway[] | null = null;
+let runwayApproachTypes: Map<string, string> | null = null; // Map of "AIRPORTID-RUNWAYEND" -> "PREC"|"NONPREC"|"VISUAL"
 
 /**
  * Check if an airport is military based on name/keywords
@@ -167,6 +168,51 @@ export function loadRunways(): Runway[] {
 export function getRunwaysForAirport(airportId: string): Runway[] {
   const allRunways = loadRunways();
   return allRunways.filter(r => r.airport_id === airportId);
+}
+
+/**
+ * Load and parse runway approach types from CSV
+ * Maps airport identifier + runway end to approach category (PREC/NONPREC/VISUAL)
+ */
+export function loadRunwayApproachTypes(): Map<string, string> {
+  if (runwayApproachTypes) {
+    return runwayApproachTypes;
+  }
+
+  const csvPath = path.join(process.cwd(), 'attached_assets', 'runway_approach_types.final_1759859516606.csv');
+  const fileContent = fs.readFileSync(csvPath, 'utf-8');
+  
+  const records = parse(fileContent, {
+    columns: true,
+    skip_empty_lines: true,
+    trim: true,
+  });
+
+  runwayApproachTypes = new Map();
+  
+  for (const row of records as any[]) {
+    const airportId = row.AirportID;
+    const runwayEnd = row.RunwayEnd;
+    const category = row.Category; // PREC, NONPREC, or VISUAL
+    
+    if (airportId && runwayEnd && category) {
+      const key = `${airportId}-${runwayEnd}`;
+      runwayApproachTypes.set(key, category);
+    }
+  }
+
+  console.log(`Loaded ${runwayApproachTypes.size} runway approach type mappings`);
+  return runwayApproachTypes;
+}
+
+/**
+ * Get approach type for a specific runway at an airport
+ * Returns "PREC", "NONPREC", "VISUAL", or null if not found
+ */
+export function getRunwayApproachType(airportIdent: string, runwayEnd: string): string | null {
+  const approachTypes = loadRunwayApproachTypes();
+  const key = `${airportIdent}-${runwayEnd}`;
+  return approachTypes.get(key) || null;
 }
 
 /**
