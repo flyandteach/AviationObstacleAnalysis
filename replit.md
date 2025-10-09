@@ -67,6 +67,14 @@ Preferred communication style: Simple, everyday language.
 - **Result**: 134 public use airports (down from 541 civilian → 752 total)
 - **Reference**: FAA Airport Data and Information Portal standards
 
+### Airport Identifiers
+- **Feature**: Airport identifiers now use FAA local codes instead of ICAO codes
+- **Implementation**: 
+  - Prefer `local_code` (e.g., S50) over `ident` (e.g., KS50) for display
+  - FAA local codes are what pilots typically use for smaller US airports
+  - Falls back to `ident` if `local_code` is unavailable
+- **Example**: Auburn Municipal Airport displays as "S50" not "KS50"
+
 ### Airport Markers on Map
 - **Feature**: Closest airport is now marked on the interactive map
 - **Implementation**:

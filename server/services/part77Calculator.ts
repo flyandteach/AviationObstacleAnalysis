@@ -263,7 +263,7 @@ export function createPart77Result(
   return {
     id: `${index + 1}`,
     obstacleId: obstacle.obstacleId,
-    nearestAirport: airport.ident,
+    nearestAirport: airport.local_code || airport.ident,
     airportName: airport.name,
     airportLatitude: airport.latitude_deg,
     airportLongitude: airport.longitude_deg,

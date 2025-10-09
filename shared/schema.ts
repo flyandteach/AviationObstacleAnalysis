@@ -28,6 +28,7 @@ export const airportSchema = z.object({
   elevation_ft: z.number().nullable(),
   icao_code: z.string().nullable(),
   iata_code: z.string().nullable(),
+  local_code: z.string().nullable(),
   iso_region: z.string().nullable(),
 });
 

@@ -125,6 +125,7 @@ export function loadAirports(): Airport[] {
       elevation_ft: row.elevation_ft ? parseFloat(row.elevation_ft) : null,
       icao_code: row.icao_code || null,
       iata_code: row.iata_code || null,
+      local_code: row.local_code || null,
       iso_region: row.iso_region,
     }));
 
