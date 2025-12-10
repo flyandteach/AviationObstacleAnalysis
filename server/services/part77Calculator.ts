@@ -81,7 +81,8 @@ export function analyzePart77(
         const ends = runway.designator.split('/');
         
         for (const end of ends) {
-          const approachType = getRunwayApproachType(airport.ident, end.trim());
+          // Pass runway data so US_LOW/US_HIGH can be used as secondary source
+          const approachType = getRunwayApproachType(airport.ident, end.trim(), runway);
           
           if (approachType) {
             approachTypeFound = true;

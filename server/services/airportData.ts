@@ -150,13 +150,15 @@ export function loadRunways(): Runway[] {
     trim: true,
   });
 
-  // Map to our runway schema
+  // Map to our runway schema including instrument approach indicators
   runways = records.map((row: any) => ({
     airport_id: row.AIRPORT_ID,
     designator: row.DESIGNATOR,
     length: row.LENGTH ? parseFloat(row.LENGTH) : 0,
     width: row.WIDTH ? parseFloat(row.WIDTH) : 0,
     surface: row.COMP_CODE || null,
+    us_low: row.US_LOW === '1',   // Indicates instrument approach on US Low charts
+    us_high: row.US_HIGH === '1', // Indicates instrument approach on US High charts
   }));
 
   console.log(`Loaded ${runways.length} runway records`);
@@ -207,12 +209,15 @@ export function loadRunwayApproachTypes(): Map<string, string> {
 
 /**
  * Get approach type for a specific runway at an airport
+ * Checks multiple sources:
+ * 1. Curated approach types file (primary source)
+ * 2. Runway US_LOW/US_HIGH indicators (secondary source)
  * Returns "PREC", "NONPREC", "VISUAL", or null if not found
  */
-export function getRunwayApproachType(airportIdent: string, runwayEnd: string): string | null {
+export function getRunwayApproachType(airportIdent: string, runwayEnd: string, runway?: Runway): string | null {
   const approachTypes = loadRunwayApproachTypes();
   
-  // Try the identifier as-is first
+  // Primary source: Try the curated approach types file
   let key = `${airportIdent}-${runwayEnd}`;
   let result = approachTypes.get(key);
   
@@ -229,6 +234,15 @@ export function getRunwayApproachType(airportIdent: string, runwayEnd: string): 
     
     if (result) {
       return result;
+    }
+  }
+  
+  // Secondary source: Check runway US_LOW/US_HIGH indicators
+  // If runway data is provided and has instrument approach indicators,
+  // treat it as non-precision (conservative assumption)
+  if (runway) {
+    if (runway.us_low || runway.us_high) {
+      return "NONPREC"; // Assume non-precision if has instrument approach indicator
     }
   }
   

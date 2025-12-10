@@ -41,6 +41,8 @@ export const runwaySchema = z.object({
   length: z.number(),
   width: z.number(),
   surface: z.string().nullable(),
+  us_low: z.boolean().optional(),  // Indicates instrument approach on US Low charts
+  us_high: z.boolean().optional(), // Indicates instrument approach on US High charts
 });
 
 export type Runway = z.infer<typeof runwaySchema>;
