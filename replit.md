@@ -34,38 +34,29 @@ Preferred communication style: Simple, everyday language.
   - Only skip runway-dependent surfaces (primary, approach, transitional)
   - Prevents false negatives for seaplane bases
 
-### Military Airport and Heliport Exclusion
-- **Requirement**: Military airports and heliports must not be included in analysis
-- **Implementation**: Airport filtering now excludes:
-  - All heliports (type = "heliport")
-  - Military airports identified by name keywords:
-    - Air Force: Air Force Base, AFB, Air Force
-    - Army: Army, AAF, Army Airfield
-    - Navy: Navy, NAS, Naval
-    - Marine Corps: Marine, MCAS, Marine Corps
-    - Coast Guard: Coast Guard, USCG
-    - Joint/Combined: Joint Base, Military
-    - Air National Guard: Air National Guard, ANG, Air Natl Guard
-- **Result**: 541 civilian airports loaded (down from 752 total Washington airports)
-- **Examples of excluded airports**:
-  - Gray Army Air Field (KGRF)
-  - Fairchild Air Force Base (KSKA)
-  - McChord Air Force Base (KTCM)
-  - Vagabond Army Heliport (KFCT)
-  - All hospital, medical center, and private heliports
-
-### Public Use Airport Filtering
-- **Requirement**: Analysis should only include public use airports (not private airports)
-- **Implementation**: Uses FAA identifier format standards to identify public vs private:
-  - **Public airports** (included):
-    - 3-letter codes (e.g., SEA, ALW, BFI, GEG)
-    - 1 letter + 2 numbers (e.g., L35, F70, 09S)
-    - ICAO codes with 'K' prefix (e.g., KALW, KBFI) - stripped to base code
-  - **Private airports** (excluded):
-    - 2 letters + 2 numbers pattern (e.g., 00WA, 3CL4, 01WN)
-    - Contains state abbreviation in identifier
-- **Result**: 134 public use airports (down from 541 civilian → 752 total)
-- **Reference**: FAA Airport Data and Information Portal standards
+### Airport Filtering Criteria
+- **Requirement**: Include all public use airports (both publicly and privately owned); exclude heliports, seaplane bases, and military airports
+- **Implementation**: Airport filtering based on type and name:
+  - **Included** (all public use airports):
+    - small_airport, medium_airport, large_airport types
+    - Both publicly owned and privately owned airports that are open to public use
+  - **Excluded**:
+    - Heliports (type = "heliport")
+    - Seaplane bases (type = "seaplane_base")
+    - Military airports identified by name keywords:
+      - Air Force: Air Force Base, AFB, Air Force
+      - Army: Army, AAF, Army Airfield
+      - Navy: Navy, NAS, Naval
+      - Marine Corps: Marine, MCAS, Marine Corps
+      - Coast Guard: Coast Guard, USCG
+      - Joint/Combined: Joint Base, Military
+      - Air National Guard: Air National Guard, ANG, Air Natl Guard
+- **Result**: 511 Washington state airports loaded
+- **Examples of excluded facilities**:
+  - Gray Army Air Field (KGRF) - military
+  - Fairchild Air Force Base (KSKA) - military
+  - All heliports (hospital, private, etc.)
+  - All seaplane bases
 
 ### Airport Identifiers
 - **Feature**: Airport identifiers now use FAA local codes instead of ICAO codes
