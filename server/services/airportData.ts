@@ -38,13 +38,28 @@ function isMilitaryAirport(name: string): boolean {
 }
 
 /**
- * Check if airport type should be excluded
- * Excludes: heliports, seaplane bases
- * Includes: small_airport, medium_airport, large_airport, closed (for reference)
+ * Check if airport should be excluded based on type or name
+ * Excludes: heliports, seaplane bases (even if type is "closed" or mislabeled)
+ * Includes: small_airport, medium_airport, large_airport
  */
-function isExcludedAirportType(type: string): boolean {
+function isExcludedFacility(type: string, name: string): boolean {
+  const lowerType = type?.toLowerCase() || '';
+  const lowerName = name?.toLowerCase() || '';
+  
+  // Exclude by type
   const excludedTypes = ['heliport', 'seaplane_base'];
-  return excludedTypes.includes(type?.toLowerCase());
+  if (excludedTypes.includes(lowerType)) {
+    return true;
+  }
+  
+  // Also exclude if name contains heliport/seaplane keywords
+  // (catches mislabeled entries with type="closed" etc.)
+  const excludedNameKeywords = ['heliport', 'helipad', 'seaplane', 'seabase'];
+  if (excludedNameKeywords.some(keyword => lowerName.includes(keyword))) {
+    return true;
+  }
+  
+  return false;
 }
 
 /**
@@ -73,7 +88,7 @@ export function loadAirports(): Airport[] {
   airports = records
     .filter((row: any) => {
       if (row.iso_region !== 'US-WA') return false;
-      if (isExcludedAirportType(row.type)) return false;
+      if (isExcludedFacility(row.type, row.name)) return false;
       if (isMilitaryAirport(row.name)) return false;
       return true;
     })
