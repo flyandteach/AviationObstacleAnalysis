@@ -67,8 +67,7 @@ export type SurfaceType =
   | "Approach Surface" 
   | "Transitional Surface"
   | "Horizontal Surface"
-  | "Conical Surface"
-  | "Notification Surface (77.9)";
+  | "Conical Surface";
 
 // Part 77 Analysis Result
 export const part77ResultSchema = z.object({
@@ -84,7 +83,6 @@ export const part77ResultSchema = z.object({
   status: z.enum(["penetration", "warning", "clear"]),
   latitude: z.number(),
   longitude: z.number(),
-  requiresNotification: z.boolean(), // FAA Form 7460-1 required per 14 CFR 77.9
 });
 
 export type Part77Result = z.infer<typeof part77ResultSchema>;

@@ -227,26 +227,6 @@ export function analyzePart77(
     }
   }
 
-  // 6. FAA NOTIFICATION SURFACE (14 CFR Part 77.9)
-  // 100:1 slope for runways > 3,200 feet, extends 50,000 feet from runway
-  // This is a notification trigger, not a Part 77.25 imaginary surface
-  const notificationDistance = 50000; // feet (approximately 8.2 NM)
-  const notificationSlope = 100; // 100:1 horizontal to vertical
-  
-  // Only applies to runways longer than 3,200 feet
-  if (!isUtilityRunway && distanceFeet < notificationDistance) {
-    // 100:1 slope means height = distance / 100
-    const notificationSurfaceHeight = distanceFeet / notificationSlope;
-    
-    if (obstacleHeightRelativeToAirport > notificationSurfaceHeight) {
-      return {
-        penetrates: true,
-        surfaceType: "Notification Surface (77.9)",
-        penetrationHeight: obstacleHeightRelativeToAirport - notificationSurfaceHeight,
-      };
-    }
-  }
-
   // No penetration detected
   return {
     penetrates: false,
@@ -270,72 +250,6 @@ export function determinePenetrationStatus(
 }
 
 /**
- * Check if FAA notification is required per 14 CFR Part 77.9
- * This is checked INDEPENDENTLY of Part 77.25 surface penetrations
- * 
- * 77.9 requires notification if obstacle:
- * 1. Is more than 200 feet AGL (always requires notification)
- * 2. Exceeds 100:1 slope within 20,000 feet of runway (for runways > 3,200 ft)
- * 3. Exceeds 50:1 slope within 10,000 feet of runway (for runways <= 3,200 ft)
- */
-export function checkNotificationRequired(
-  obstacle: ObstacleInput,
-  airport: Airport,
-  distanceNM: number
-): boolean {
-  const obstacleAGL = obstacle.heightAGL || 0;
-  
-  // Rule 1: Any structure more than 200 feet AGL requires notification
-  if (obstacleAGL > 200) {
-    return true;
-  }
-  
-  const distanceFeet = distanceNM * 6076.12;
-  const obstacleMSL = obstacle.heightMSL || 0;
-  const airportElevationMSL = airport.elevation_ft || 0;
-  const obstacleHeightRelativeToAirport = obstacleMSL - airportElevationMSL;
-  
-  // Get runway length to determine utility vs non-utility
-  const runways = getRunwaysForAirport(airport.id);
-  let runwayLength = 0;
-  let isUtilityRunway = false; // Default to non-utility (conservative)
-  
-  if (runways && runways.length > 0) {
-    const longestRunway = runways.reduce((max, r) => r.length > max.length ? r : max, runways[0]);
-    runwayLength = longestRunway?.length || 0;
-    // Only set as utility if we have runway data confirming it
-    isUtilityRunway = runwayLength > 0 && runwayLength < 3200;
-  }
-  
-  // Rule 2 & 3: Slope-based notification surfaces
-  if (isUtilityRunway) {
-    // Utility runway: 50:1 slope for 10,000 feet
-    const notificationDistance = 10000; // feet
-    const notificationSlope = 50; // 50:1
-    
-    if (distanceFeet <= notificationDistance) {
-      const notificationSurfaceHeight = distanceFeet / notificationSlope;
-      if (obstacleHeightRelativeToAirport > notificationSurfaceHeight) {
-        return true;
-      }
-    }
-  } else {
-    // Non-utility runway: 100:1 slope for 20,000 feet
-    const notificationDistance = 20000; // feet (~3.3 NM)
-    const notificationSlope = 100; // 100:1
-    
-    if (distanceFeet <= notificationDistance) {
-      const notificationSurfaceHeight = distanceFeet / notificationSlope;
-      if (obstacleHeightRelativeToAirport > notificationSurfaceHeight) {
-        return true;
-      }
-    }
-  }
-  
-  return false;
-}
-
-/**
  * Create Part 77 result for an obstacle
  */
 export function createPart77Result(
@@ -346,7 +260,6 @@ export function createPart77Result(
 ): Part77Result {
   const penetration = analyzePart77(obstacle, airport, distanceNM);
   const status = determinePenetrationStatus(penetration);
-  const requiresNotification = checkNotificationRequired(obstacle, airport, distanceNM);
 
   return {
     id: `${index + 1}`,
@@ -361,6 +274,5 @@ export function createPart77Result(
     status,
     latitude: obstacle.latitude,
     longitude: obstacle.longitude,
-    requiresNotification,
   };
 }

@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { AlertTriangle, CheckCircle, AlertCircle, ChevronDown, FileWarning } from "lucide-react";
+import { AlertTriangle, CheckCircle, AlertCircle, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import React from "react";
@@ -16,7 +16,6 @@ export interface ObstacleResult {
   status: "penetration" | "warning" | "clear";
   latitude: number;
   longitude: number;
-  requiresNotification?: boolean;
 }
 
 interface ResultsTableProps {
@@ -83,7 +82,6 @@ export default function ResultsTable({ results }: ResultsTableProps) {
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Height (ft AGL)</th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Surface</th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Status</th>
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">77.9 Notice</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -123,21 +121,11 @@ export default function ResultsTable({ results }: ResultsTableProps) {
                   <td className="px-6 py-3">
                     {getStatusBadge(result.status)}
                   </td>
-                  <td className="px-6 py-3">
-                    {result.requiresNotification ? (
-                      <Badge variant="outline" className="gap-1 border-chart-4 text-chart-4">
-                        <FileWarning className="w-3 h-3" />
-                        Required
-                      </Badge>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">-</span>
-                    )}
-                  </td>
                 </tr>
                 {expandedRows.has(result.id) && (
                   <tr className="bg-muted/30">
-                    <td colSpan={8} className="px-6 py-4">
-                      <div className="grid grid-cols-3 gap-4 text-sm">
+                    <td colSpan={7} className="px-6 py-4">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <p className="text-muted-foreground mb-1">Coordinates</p>
                           <p className="font-mono text-foreground">
@@ -152,14 +140,6 @@ export default function ResultsTable({ results }: ResultsTableProps) {
                               : result.status === "warning"
                               ? "Obstacle within warning threshold"
                               : "Obstacle clear of all surfaces"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground mb-1">FAA Notification (77.9)</p>
-                          <p className="text-foreground">
-                            {result.requiresNotification 
-                              ? "Form 7460-1 notification required (penetrates 100:1 surface)" 
-                              : "No notification required"}
                           </p>
                         </div>
                       </div>

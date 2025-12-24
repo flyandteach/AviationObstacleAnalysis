@@ -74,10 +74,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (numbersAfterCoords && numbersAfterCoords.length >= 2) {
               // Last number = AGL (height above ground)
               heightAGL = parseInt(numbersAfterCoords[numbersAfterCoords.length - 1], 10);
-              // Second to last number = Ground Elevation (site elevation MSL)
-              const groundElevation = parseInt(numbersAfterCoords[numbersAfterCoords.length - 2], 10);
-              // Obstacle top MSL = Ground Elevation + AGL
-              heightMSL = groundElevation + heightAGL;
+              // Second to last number = MSL (height above sea level)
+              heightMSL = parseInt(numbersAfterCoords[numbersAfterCoords.length - 2], 10);
             } else if (numbersAfterCoords && numbersAfterCoords.length === 1) {
               // If only one number, treat it as AGL
               heightAGL = parseInt(numbersAfterCoords[0], 10);
