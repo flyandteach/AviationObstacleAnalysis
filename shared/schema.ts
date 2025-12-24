@@ -84,6 +84,7 @@ export const part77ResultSchema = z.object({
   status: z.enum(["penetration", "warning", "clear"]),
   latitude: z.number(),
   longitude: z.number(),
+  requiresNotification: z.boolean(), // FAA Form 7460-1 required per 14 CFR 77.9
 });
 
 export type Part77Result = z.infer<typeof part77ResultSchema>;

@@ -270,6 +270,51 @@ export function determinePenetrationStatus(
 }
 
 /**
+ * Check if FAA notification is required per 14 CFR Part 77.9
+ * This is checked INDEPENDENTLY of Part 77.25 surface penetrations
+ * 100:1 slope for runways > 3,200 feet, extends 50,000 feet from runway
+ */
+export function checkNotificationRequired(
+  obstacle: ObstacleInput,
+  airport: Airport,
+  distanceNM: number
+): boolean {
+  const distanceFeet = distanceNM * 6076.12;
+  const obstacleMSL = obstacle.heightMSL || 0;
+  const airportElevationMSL = airport.elevation_ft || 0;
+  const obstacleHeightRelativeToAirport = obstacleMSL - airportElevationMSL;
+  
+  // Get runway length to determine if this is a utility runway
+  const runways = getRunwaysForAirport(airport.id);
+  let runwayLength = 0;
+  let isUtilityRunway = false; // Default to non-utility (conservative)
+  
+  if (runways && runways.length > 0) {
+    const longestRunway = runways.reduce((max, r) => r.length > max.length ? r : max, runways[0]);
+    runwayLength = longestRunway?.length || 0;
+    // Only set as utility if we have runway data confirming it
+    isUtilityRunway = runwayLength > 0 && runwayLength < 3200;
+  }
+  // If no runway data found, assume non-utility (conservative approach)
+  // This ensures major airports like SEA are treated correctly
+  
+  // 77.9 notification only applies to runways > 3,200 feet
+  if (isUtilityRunway) {
+    return false;
+  }
+  
+  const notificationDistance = 50000; // feet (~8.2 NM)
+  const notificationSlope = 100; // 100:1
+  
+  if (distanceFeet < notificationDistance) {
+    const notificationSurfaceHeight = distanceFeet / notificationSlope;
+    return obstacleHeightRelativeToAirport > notificationSurfaceHeight;
+  }
+  
+  return false;
+}
+
+/**
  * Create Part 77 result for an obstacle
  */
 export function createPart77Result(
@@ -280,6 +325,7 @@ export function createPart77Result(
 ): Part77Result {
   const penetration = analyzePart77(obstacle, airport, distanceNM);
   const status = determinePenetrationStatus(penetration);
+  const requiresNotification = checkNotificationRequired(obstacle, airport, distanceNM);
 
   return {
     id: `${index + 1}`,
@@ -294,5 +340,6 @@ export function createPart77Result(
     status,
     latitude: obstacle.latitude,
     longitude: obstacle.longitude,
+    requiresNotification,
   };
 }
