@@ -75,6 +75,25 @@ Preferred communication style: Simple, everyday language.
   - Map legend includes airport marker indicator
 - **Data flow**: API returns airport coordinates with each obstacle analysis result
 
+### FAA Notification Surface (14 CFR Part 77.9)
+- **Feature**: Added 100:1 notification surface check per 14 CFR Part 77.9
+- **Implementation**:
+  - Applies to runways > 3,200 feet in length
+  - 100:1 horizontal to vertical slope (1 foot rise per 100 feet distance)
+  - Extends 50,000 feet (approximately 8.2 NM) from runway
+  - Triggers when obstacle height relative to airport exceeds the 100:1 slope
+- **Purpose**: Identifies obstacles that require FAA Form 7460-1 notification
+- **Display**: Shows as "Notification Surface (77.9)" in analysis results
+
+### Surface Check Order
+The system checks surfaces in order of restrictiveness:
+1. Primary Surface (at runway elevation)
+2. Approach Surface (20:1, 34:1, or 50:1 depending on approach type)
+3. Transitional Surface (7:1)
+4. Horizontal Surface (150 ft above airport elevation)
+5. Conical Surface (20:1 beyond horizontal)
+6. Notification Surface (100:1 per 77.9)
+
 ### Obstacle Filtering
 - **Confirmed**: Application correctly filters "determined" status obstacles
 - All other obstacles are analyzed and plotted on map as required

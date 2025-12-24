@@ -227,6 +227,26 @@ export function analyzePart77(
     }
   }
 
+  // 6. FAA NOTIFICATION SURFACE (14 CFR Part 77.9)
+  // 100:1 slope for runways > 3,200 feet, extends 50,000 feet from runway
+  // This is a notification trigger, not a Part 77.25 imaginary surface
+  const notificationDistance = 50000; // feet (approximately 8.2 NM)
+  const notificationSlope = 100; // 100:1 horizontal to vertical
+  
+  // Only applies to runways longer than 3,200 feet
+  if (!isUtilityRunway && distanceFeet < notificationDistance) {
+    // 100:1 slope means height = distance / 100
+    const notificationSurfaceHeight = distanceFeet / notificationSlope;
+    
+    if (obstacleHeightRelativeToAirport > notificationSurfaceHeight) {
+      return {
+        penetrates: true,
+        surfaceType: "Notification Surface (77.9)",
+        penetrationHeight: obstacleHeightRelativeToAirport - notificationSurfaceHeight,
+      };
+    }
+  }
+
   // No penetration detected
   return {
     penetrates: false,

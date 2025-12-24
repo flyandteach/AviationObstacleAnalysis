@@ -67,7 +67,8 @@ export type SurfaceType =
   | "Approach Surface" 
   | "Transitional Surface"
   | "Horizontal Surface"
-  | "Conical Surface";
+  | "Conical Surface"
+  | "Notification Surface (77.9)";
 
 // Part 77 Analysis Result
 export const part77ResultSchema = z.object({
