@@ -51,147 +51,105 @@ export function analyzePart77(
   // Part 77 Surface Definitions per 14 CFR Part 77.17-77.29
   
   // 1. PRIMARY SURFACE (Part 77.25)
-  // Rectangle centered on runway, width varies by runway type
+  // Rectangle centered on runway, extends 200 ft beyond EACH runway end
   const primarySurfaceWidth = isUtilityRunway ? 250 : 500; // feet (each side of centerline)
-  const primarySurfaceLength = runwayLength + 200; // 200 ft beyond each end
+  const primarySurfaceHalfLength = (runwayLength + 400) / 2; // 200 ft beyond each end = 400 ft total
   
   // 2. APPROACH SURFACE (Part 77.25)
   // Trapezoidal surface extending from runway ends
-  // Slopes vary by runway type per Part 77.25(a)
-  let approachSlope: number;
-  let approachLength: number;
+  // Slopes and lengths vary by runway/approach type per 14 CFR Part 77.25
+  let approachType = "VISUAL";
   
   if (isUtilityRunway) {
-    // Utility runways: 20:1 slope, 5,000 ft length
-    approachSlope = 20;
-    approachLength = 5000;
+    approachType = "UTILITY";
   } else {
-    // Other than utility: determine approach type from runway data
-    // Visual runway: 20:1, non-precision: 34:1, precision: 50:1
-    
-    // Determine best approach type for this airport
-    // Start with least restrictive (VISUAL) and escalate when more demanding types are found
-    let bestApproachType = "VISUAL";
     let approachTypeFound = false;
     
-    // If we have runway records, check each runway end
     if (hasRunways) {
       for (const runway of runways) {
-        // Runway designators like "16/34" have two ends
         const ends = runway.designator.split('/');
-        
         for (const end of ends) {
-          // Pass runway data so US_LOW/US_HIGH can be used as secondary source
-          const approachType = getRunwayApproachType(airport.ident, end.trim(), runway);
-          
-          if (approachType) {
+          const type = getRunwayApproachType(airport.ident, end.trim(), runway);
+          if (type) {
             approachTypeFound = true;
-            
-            // Escalate to most demanding approach type found
-            if (approachType === "PREC") {
-              bestApproachType = "PREC";
-              break; // Precision is most demanding, no need to check further
-            } else if (approachType === "NONPREC" && bestApproachType !== "PREC") {
-              bestApproachType = "NONPREC";
-            }
-            // If VISUAL, keep current bestApproachType (VISUAL only if no NONPREC/PREC found yet)
+            if (type === "PREC") { approachType = "PREC"; break; }
+            if (type === "NONPREC" && approachType !== "PREC") approachType = "NONPREC";
           }
         }
-        
-        if (bestApproachType === "PREC") break;
+        if (approachType === "PREC") break;
       }
     } else {
-      // No runway records found - try to infer from approach type data
-      // Only check a limited set of common runway ends to reduce false positives
-      const commonEnds = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', 
-        '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', 
-        '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36'];
-      
+      const commonEnds = ['01','02','03','04','05','06','07','08','09','10',
+        '11','12','13','14','15','16','17','18','19','20','21','22','23',
+        '24','25','26','27','28','29','30','31','32','33','34','35','36'];
       for (const end of commonEnds) {
-        const approachType = getRunwayApproachType(airport.ident, end);
-        
-        if (approachType) {
+        const type = getRunwayApproachType(airport.ident, end);
+        if (type) {
           approachTypeFound = true;
-          
-          // Escalate to most demanding approach type found
-          if (approachType === "PREC") {
-            bestApproachType = "PREC";
-            break;
-          } else if (approachType === "NONPREC" && bestApproachType !== "PREC") {
-            bestApproachType = "NONPREC";
-          }
+          if (type === "PREC") { approachType = "PREC"; break; }
+          if (type === "NONPREC" && approachType !== "PREC") approachType = "NONPREC";
         }
       }
     }
     
-    // If no approach type data was found, use conservative default
-    if (!approachTypeFound) {
-      bestApproachType = "NONPREC"; // 34:1 as conservative middle ground
-    }
-    
-    // Apply slope based on approach type per 14 CFR Part 77.25
-    switch (bestApproachType) {
-      case "PREC":
-        approachSlope = 50; // Precision instrument approach
-        approachLength = 10000;
-        break;
-      case "NONPREC":
-        approachSlope = 34; // Non-precision instrument approach
-        approachLength = 10000;
-        break;
+    if (!approachTypeFound) approachType = "NONPREC"; // conservative default
+  }
+
+  /**
+   * Calculate approach surface height at a given distance from the runway end.
+   * Per 14 CFR Part 77.25:
+   *   Utility/Visual:    20:1 slope, 5,000 ft length
+   *   Non-precision:     34:1 slope, 10,000 ft length
+   *   Precision (ILS):   50:1 for first 10,000 ft, then 40:1 for next 40,000 ft (50,000 ft total)
+   * Returns null if distanceFromEnd exceeds the approach surface length.
+   */
+  function approachSurfaceHeightAtDistance(distFromEnd: number): number | null {
+    if (distFromEnd <= 0) return 0;
+    switch (approachType) {
+      case "UTILITY":
+        if (distFromEnd > 5000) return null;
+        return distFromEnd / 20;
       case "VISUAL":
+        if (distFromEnd > 10000) return null;
+        return distFromEnd / 20;
+      case "NONPREC":
+        if (distFromEnd > 10000) return null;
+        return distFromEnd / 34;
+      case "PREC": {
+        // First 10,000 ft at 50:1, next 40,000 ft at 40:1
+        if (distFromEnd > 50000) return null;
+        if (distFromEnd <= 10000) return distFromEnd / 50;
+        return (10000 / 50) + (distFromEnd - 10000) / 40;
+      }
       default:
-        approachSlope = 20; // Visual approach
-        approachLength = 10000;
-        break;
+        if (distFromEnd > 10000) return null;
+        return distFromEnd / 34;
     }
   }
-  
-  // Check approach and transitional surfaces
-  // These can be checked even if runway records aren't available via ID matching,
-  // as long as we've determined an approach type
-  if (hasRunways || !isUtilityRunway) {
-    // Check approach surface
-    if (distanceFeet < approachLength + primarySurfaceLength / 2) {
-      const distanceFromRunwayEnd = distanceFeet - primarySurfaceLength / 2;
-      const approachSurfaceHeight = distanceFromRunwayEnd > 0 ? distanceFromRunwayEnd / approachSlope : 0;
-      
-      if (distanceFromRunwayEnd > 0) {
-        if (obstacleHeightRelativeToAirport > approachSurfaceHeight) {
-          return {
-            penetrates: true,
-            surfaceType: "Approach Surface",
-            penetrationHeight: obstacleHeightRelativeToAirport - approachSurfaceHeight,
-          };
-        }
-      } else {
-        // Within primary surface - obstacle penetrates if above runway elevation
-        // Primary surface is at runway elevation (assume airport elevation for simplicity)
-        if (obstacleHeightRelativeToAirport > 0) {
-          return {
-            penetrates: true,
-            surfaceType: "Primary Surface",
-            penetrationHeight: obstacleHeightRelativeToAirport,
-          };
-        }
-      }
-    }
 
-    // 3. TRANSITIONAL SURFACE (Part 77.25)
-    // 7:1 slope from sides of primary and approach surfaces
-    const transitionalSlope = 7;
-    const maxTransitionalHeight = 150; // Limited by horizontal surface
-    
-    if (distanceFeet < approachLength) {
-      // Simplified: assume lateral offset equals distance from runway
-      const transitionalHeight = Math.min(distanceFeet / transitionalSlope, maxTransitionalHeight);
-      if (obstacleHeightRelativeToAirport > transitionalHeight) {
-        return {
-          penetrates: true,
-          surfaceType: "Transitional Surface",
-          penetrationHeight: obstacleHeightRelativeToAirport - transitionalHeight,
-        };
-      }
+  // Check primary and approach surfaces
+  // Note: distanceFeet is from obstacle to ARP; approach surfaces extend in runway direction.
+  // Without runway heading/position data this is a conservative directional approximation.
+  const distanceFromRunwayEnd = distanceFeet - primarySurfaceHalfLength;
+  const approachHeight = approachSurfaceHeightAtDistance(distanceFromRunwayEnd);
+  
+  if (distanceFromRunwayEnd <= 0) {
+    // Within primary surface — penetrates if above airport elevation
+    if (obstacleHeightRelativeToAirport > 0) {
+      return {
+        penetrates: true,
+        surfaceType: "Primary Surface",
+        penetrationHeight: obstacleHeightRelativeToAirport,
+      };
+    }
+  } else if (approachHeight !== null) {
+    // Within approach surface bounds
+    if (obstacleHeightRelativeToAirport > approachHeight) {
+      return {
+        penetrates: true,
+        surfaceType: "Approach Surface",
+        penetrationHeight: obstacleHeightRelativeToAirport - approachHeight,
+      };
     }
   }
 

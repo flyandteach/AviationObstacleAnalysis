@@ -63,10 +63,25 @@ function isExcludedFacility(type: string, name: string): boolean {
 }
 
 /**
+ * Check if airport is private-use based on FAA identifier format.
+ * Private-use airports in the US have 4-character identifiers that embed
+ * a 2-letter FAA state/district code (e.g., 00WA, 0WN1, 17WT).
+ * Public-use airports have ≤3-character identifiers (e.g., SEA, S50, 09S, 00W).
+ * ICAO codes (K + 3 chars) are also public use.
+ */
+function isPrivateUseAirport(localCode: string, ident: string): boolean {
+  // Use local_code if available, otherwise strip K-prefix from ICAO ident
+  const code = localCode || (ident?.startsWith('K') && ident.length === 4 ? ident.substring(1) : ident);
+  if (!code) return false;
+  // 4-character codes indicate private-use airports with embedded state identifiers
+  return code.length >= 4;
+}
+
+/**
  * Load and parse airport data from CSV
  * Filters for Washington state airports only
- * Includes: All public use airports (both publicly and privately owned)
- * Excludes: Heliports, seaplane bases, military airports
+ * Includes: Public use airports only (both publicly and privately owned that are public use)
+ * Excludes: Heliports, seaplane bases, military airports, private-use airports
  */
 export function loadAirports(): Airport[] {
   if (airports) {
@@ -90,6 +105,7 @@ export function loadAirports(): Airport[] {
       if (row.iso_region !== 'US-WA') return false;
       if (isExcludedFacility(row.type, row.name)) return false;
       if (isMilitaryAirport(row.name)) return false;
+      if (isPrivateUseAirport(row.local_code, row.ident)) return false;
       return true;
     })
     .map((row: any) => ({
@@ -106,7 +122,7 @@ export function loadAirports(): Airport[] {
       iso_region: row.iso_region,
     }));
 
-  console.log(`Loaded ${airports.length} Washington state airports (excluding heliports, seaplane bases, and military)`);
+  console.log(`Loaded ${airports.length} Washington state public-use airports (excluding heliports, seaplane bases, military, and private-use)`);
   return airports;
 }
 
