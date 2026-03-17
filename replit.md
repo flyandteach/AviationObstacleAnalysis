@@ -34,29 +34,30 @@ Preferred communication style: Simple, everyday language.
   - Only skip runway-dependent surfaces (primary, approach, transitional)
   - Prevents false negatives for seaplane bases
 
-### Airport Filtering Criteria
-- **Requirement**: Include all public use airports (both publicly and privately owned); exclude heliports, seaplane bases, and military airports
-- **Implementation**: Airport filtering based on type and name:
-  - **Included** (all public use airports):
-    - small_airport, medium_airport, large_airport types
-    - Both publicly owned and privately owned airports that are open to public use
-  - **Excluded**:
-    - Heliports (type = "heliport")
-    - Seaplane bases (type = "seaplane_base")
-    - Military airports identified by name keywords:
-      - Air Force: Air Force Base, AFB, Air Force
-      - Army: Army, AAF, Army Airfield
-      - Navy: Navy, NAS, Naval
-      - Marine Corps: Marine, MCAS, Marine Corps
-      - Coast Guard: Coast Guard, USCG
-      - Joint/Combined: Joint Base, Military
-      - Air National Guard: Air National Guard, ANG, Air Natl Guard
-- **Result**: 511 Washington state airports loaded
-- **Examples of excluded facilities**:
-  - Gray Army Air Field (KGRF) - military
-  - Fairchild Air Force Base (KSKA) - military
-  - All heliports (hospital, private, etc.)
-  - All seaplane bases
+### Airport Data Source and Filtering
+- **Primary source**: FAA NTAD Aviation Facilities CSV (authoritative FAA database)
+  - Uses `FACILITY_USE_CODE = 'PU'` — the authoritative FAA field for public vs private use
+  - Uses `SITE_TYPE_CODE = 'A'` — fixed-wing airports only (excludes C=seaplane, H=helipad)
+  - Uses `STATE_CODE = 'WA'` — Washington state only
+- **Excluded**:
+  - Private-use airports (FACILITY_USE_CODE ≠ 'PU')
+  - Seaplane bases (SITE_TYPE_CODE = 'C')
+  - Heliports (SITE_TYPE_CODE ≠ 'A')
+  - Military airports by name keyword match
+- **Result**: 117 Washington state public-use airports
+
+### Part 77 Surface Calculations (14 CFR §77.25)
+- **Approach surface slopes and lengths** per §77.25(d):
+  - Utility (any approach type): 20:1, 5,000 ft
+  - Other-than-utility visual: 20:1, 5,000 ft
+  - Other-than-utility non-precision: 34:1, 10,000 ft
+  - Precision (ILS): 50:1 for first 10,000 ft + 40:1 for next 40,000 ft = 50,000 ft total
+- **Horizontal surface radius** per §77.25(a):
+  - 5,000 ft for utility runways (< 3,200 ft) OR visual runways
+  - 10,000 ft for non-precision and precision instrument runways
+- **Approach type detection**: Scans all runway ends in curated approach types file
+  - Uses `getBestApproachTypeForAirport()` to handle parallel runway designators (14R/L, etc.)
+  - Properly identifies BFI, SEA, GEG etc. as precision (PREC) airports
 
 ### Airport Identifiers
 - **Feature**: Airport identifiers now use FAA local codes instead of ICAO codes

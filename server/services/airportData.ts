@@ -9,125 +9,78 @@ let runwayApproachTypes: Map<string, string> | null = null; // Map of "AIRPORTID
 
 /**
  * Check if an airport is military based on name/keywords
- * 
- * Keywords cover various military installation naming conventions including:
- * - Full names (Air Force Base, Army Airfield, etc.)
- * - Common abbreviations (AFB, AAF, NAS, MCAS, etc.)
- * - Service-specific terms (Joint Base, USCG, Air National Guard, etc.)
  */
 function isMilitaryAirport(name: string): boolean {
   const militaryKeywords = [
-    // Air Force
     'air force base', 'afb', 'air force',
-    // Army
     'army', 'aaf', 'army airfield',
-    // Navy
     'navy', 'nas', 'naval',
-    // Marine Corps
     'marine', 'mcas', 'marine corps',
-    // Coast Guard
     'coast guard', 'uscg',
-    // Joint/Combined
     'joint base', 'military',
-    // Air National Guard
     'air national guard', 'ang', 'air natl guard'
   ];
-  
   const lowerName = name.toLowerCase();
   return militaryKeywords.some(keyword => lowerName.includes(keyword));
 }
 
 /**
- * Check if airport should be excluded based on type or name
- * Excludes: heliports, seaplane bases (even if type is "closed" or mislabeled)
- * Includes: small_airport, medium_airport, large_airport
- */
-function isExcludedFacility(type: string, name: string): boolean {
-  const lowerType = type?.toLowerCase() || '';
-  const lowerName = name?.toLowerCase() || '';
-  
-  // Exclude by type
-  const excludedTypes = ['heliport', 'seaplane_base'];
-  if (excludedTypes.includes(lowerType)) {
-    return true;
-  }
-  
-  // Also exclude if name contains heliport/seaplane keywords
-  // (catches mislabeled entries with type="closed" etc.)
-  const excludedNameKeywords = ['heliport', 'helipad', 'seaplane', 'seabase'];
-  if (excludedNameKeywords.some(keyword => lowerName.includes(keyword))) {
-    return true;
-  }
-  
-  return false;
-}
-
-/**
- * Check if airport is private-use based on FAA identifier format.
- * Private-use airports in the US have 4-character identifiers that embed
- * a 2-letter FAA state/district code (e.g., 00WA, 0WN1, 17WT).
- * Public-use airports have ≤3-character identifiers (e.g., SEA, S50, 09S, 00W).
- * ICAO codes (K + 3 chars) are also public use.
- */
-function isPrivateUseAirport(localCode: string, ident: string): boolean {
-  // Use local_code if available, otherwise strip K-prefix from ICAO ident
-  const code = localCode || (ident?.startsWith('K') && ident.length === 4 ? ident.substring(1) : ident);
-  if (!code) return false;
-  // 4-character codes indicate private-use airports with embedded state identifiers
-  return code.length >= 4;
-}
-
-/**
- * Load and parse airport data from CSV
- * Filters for Washington state airports only
- * Includes: Public use airports only (both publicly and privately owned that are public use)
- * Excludes: Heliports, seaplane bases, military airports, private-use airports
+ * Load and parse airport data from the FAA NTAD Aviation Facilities CSV.
+ * This is the authoritative FAA source for public vs private use designation.
+ *
+ * Filters:
+ *   STATE_CODE = 'WA'           — Washington state only
+ *   FACILITY_USE_CODE = 'PU'    — Public use only (authoritative FAA field)
+ *   SITE_TYPE_CODE = 'A'        — Fixed-wing airports only (excludes C=seaplane, H=helipad)
+ *   Name keywords               — Excludes military airports
  */
 export function loadAirports(): Airport[] {
   if (airports) {
     return airports;
   }
 
-  const csvPath = path.join(process.cwd(), 'attached_assets', 'airports_1759859539048.csv');
+  const csvPath = path.join(process.cwd(), 'attached_assets', 'NTAD_Aviation_Facilities_7163558772200366310_1759859539047.csv');
   const fileContent = fs.readFileSync(csvPath, 'utf-8');
-  
+
   const records = parse(fileContent, {
     columns: true,
     skip_empty_lines: true,
     trim: true,
+    relax_quotes: true,      // Handle unescaped quotes in airport names (e.g., FLY "N" BUY)
+    relax_column_count: true, // Handle rows with varying column counts
   });
 
-  // Filter for Washington state airports
-  // Include all public use airports (both publicly and privately owned)
-  // Exclude heliports, seaplane bases, and military airports
   airports = records
     .filter((row: any) => {
-      if (row.iso_region !== 'US-WA') return false;
-      if (isExcludedFacility(row.type, row.name)) return false;
-      if (isMilitaryAirport(row.name)) return false;
-      if (isPrivateUseAirport(row.local_code, row.ident)) return false;
+      if (row.STATE_CODE !== 'WA') return false;
+      if (row.FACILITY_USE_CODE !== 'PU') return false;     // Public use only
+      if (row.SITE_TYPE_CODE !== 'A') return false;          // Fixed-wing airports only (excludes seaplanes C, heliports H)
+      if (isMilitaryAirport(row.ARPT_NAME || '')) return false;
       return true;
     })
     .map((row: any) => ({
-      id: row.id,
-      ident: row.ident,
-      type: row.type,
-      name: row.name,
-      latitude_deg: parseFloat(row.latitude_deg),
-      longitude_deg: parseFloat(row.longitude_deg),
-      elevation_ft: row.elevation_ft ? parseFloat(row.elevation_ft) : null,
-      icao_code: row.icao_code || null,
-      iata_code: row.iata_code || null,
-      local_code: row.local_code || null,
-      iso_region: row.iso_region,
+      id: row.SITE_NO || row.OBJECTID,
+      ident: row.ARPT_ID,          // Local FAA code (e.g., SEA, BFI, S50) — matches approach types file
+      type: 'small_airport',       // NTAD doesn't distinguish small/medium/large; not needed for analysis
+      name: row.ARPT_NAME,
+      latitude_deg: parseFloat(row.LAT_DECIMAL),
+      longitude_deg: parseFloat(row.LONG_DECIMAL),
+      elevation_ft: row.ELEV ? parseFloat(row.ELEV) : null,
+      icao_code: null,
+      iata_code: null,
+      local_code: row.ARPT_ID,     // Use FAA local code as display identifier
+      iso_region: 'US-WA',
     }));
 
-  console.log(`Loaded ${airports.length} Washington state public-use airports (excluding heliports, seaplane bases, military, and private-use)`);
+  console.log(`Loaded ${airports.length} Washington state public-use airports from FAA NTAD data`);
   return airports;
 }
 
 /**
- * Load and parse runway data from CSV
+ * Load and parse runway data from CSV.
+ * NOTE: The FAA Runways CSV uses GUID AIRPORT_IDs that do not match the NTAD
+ * SITE_NO or ARPT_ID fields. Runway length lookup is therefore not available
+ * via this method; approach types are determined from the curated approach types file.
  */
 export function loadRunways(): Runway[] {
   if (runways) {
@@ -136,22 +89,21 @@ export function loadRunways(): Runway[] {
 
   const csvPath = path.join(process.cwd(), 'attached_assets', 'Runways_1759859539049.csv');
   const fileContent = fs.readFileSync(csvPath, 'utf-8');
-  
+
   const records = parse(fileContent, {
     columns: true,
     skip_empty_lines: true,
     trim: true,
   });
 
-  // Map to our runway schema including instrument approach indicators
   runways = records.map((row: any) => ({
     airport_id: row.AIRPORT_ID,
     designator: row.DESIGNATOR,
     length: row.LENGTH ? parseFloat(row.LENGTH) : 0,
     width: row.WIDTH ? parseFloat(row.WIDTH) : 0,
     surface: row.COMP_CODE || null,
-    us_low: row.US_LOW === '1',   // Indicates instrument approach on US Low charts
-    us_high: row.US_HIGH === '1', // Indicates instrument approach on US High charts
+    us_low: row.US_LOW === '1',
+    us_high: row.US_HIGH === '1',
   }));
 
   console.log(`Loaded ${runways.length} runway records`);
@@ -159,7 +111,9 @@ export function loadRunways(): Runway[] {
 }
 
 /**
- * Get runways for a specific airport
+ * Get runways for a specific airport.
+ * Currently non-functional due to GUID/SITE_NO mismatch between data sources.
+ * Approach types are obtained from loadRunwayApproachTypes() instead.
  */
 export function getRunwaysForAirport(airportId: string): Runway[] {
   const allRunways = loadRunways();
@@ -167,8 +121,9 @@ export function getRunwaysForAirport(airportId: string): Runway[] {
 }
 
 /**
- * Load and parse runway approach types from CSV
- * Maps airport identifier + runway end to approach category (PREC/NONPREC/VISUAL)
+ * Load and parse runway approach types from the curated CSV.
+ * Maps "AIRPORTID-RUNWAYEND" -> "PREC" | "NONPREC" | "VISUAL"
+ * Airport IDs in this file use FAA local codes (SEA, BFI, S50, etc.)
  */
 export function loadRunwayApproachTypes(): Map<string, string> {
   if (runwayApproachTypes) {
@@ -177,7 +132,7 @@ export function loadRunwayApproachTypes(): Map<string, string> {
 
   const csvPath = path.join(process.cwd(), 'attached_assets', 'runway_approach_types.final_1759859516606.csv');
   const fileContent = fs.readFileSync(csvPath, 'utf-8');
-  
+
   const records = parse(fileContent, {
     columns: true,
     skip_empty_lines: true,
@@ -185,12 +140,12 @@ export function loadRunwayApproachTypes(): Map<string, string> {
   });
 
   runwayApproachTypes = new Map();
-  
+
   for (const row of records as any[]) {
     const airportId = row.AirportID;
     const runwayEnd = row.RunwayEnd;
     const category = row.Category; // PREC, NONPREC, or VISUAL
-    
+
     if (airportId && runwayEnd && category) {
       const key = `${airportId}-${runwayEnd}`;
       runwayApproachTypes.set(key, category);
@@ -201,63 +156,66 @@ export function loadRunwayApproachTypes(): Map<string, string> {
 }
 
 /**
- * Get approach type for a specific runway at an airport
- * Checks multiple sources:
- * 1. Curated approach types file (primary source)
- * 2. Runway US_LOW/US_HIGH indicators (secondary source)
- * Returns "PREC", "NONPREC", "VISUAL", or null if not found
+ * Get the most demanding approach type for a specific runway end at an airport.
+ * Returns "PREC", "NONPREC", "VISUAL", or null if not found.
  */
 export function getRunwayApproachType(airportIdent: string, runwayEnd: string, runway?: Runway): string | null {
   const approachTypes = loadRunwayApproachTypes();
-  
-  // Primary source: Try the curated approach types file
-  let key = `${airportIdent}-${runwayEnd}`;
-  let result = approachTypes.get(key);
-  
-  if (result) {
-    return result;
+  const ident = (airportIdent.startsWith('K') && airportIdent.length === 4)
+    ? airportIdent.substring(1)
+    : airportIdent;
+
+  const key = `${ident}-${runwayEnd}`;
+  const result = approachTypes.get(key);
+  if (result) return result;
+
+  // Secondary: US_LOW/US_HIGH instrument approach chart indicators
+  if (runway && (runway.us_low || runway.us_high)) {
+    return 'NONPREC';
   }
-  
-  // If not found and identifier starts with 'K', try without the ICAO prefix
-  // (e.g., "KS50" -> "S50", "KSEA" -> "SEA")
-  if (airportIdent.startsWith('K') && airportIdent.length === 4) {
-    const identWithoutK = airportIdent.substring(1);
-    key = `${identWithoutK}-${runwayEnd}`;
-    result = approachTypes.get(key);
-    
-    if (result) {
-      return result;
-    }
-  }
-  
-  // Secondary source: Check runway US_LOW/US_HIGH indicators
-  // If runway data is provided and has instrument approach indicators,
-  // treat it as non-precision (conservative assumption)
-  if (runway) {
-    if (runway.us_low || runway.us_high) {
-      return "NONPREC"; // Assume non-precision if has instrument approach indicator
-    }
-  }
-  
+
   return null;
 }
 
 /**
- * Get all Washington state airports with their runways
+ * Get the most demanding approach type for ANY runway at an airport.
+ * Scans all entries in the approach types file for the given airport ident.
+ * This is used when specific runway ends are unknown (no runway records matched).
+ * Returns "PREC", "NONPREC", "VISUAL", or null if airport not found in file.
+ */
+export function getBestApproachTypeForAirport(airportIdent: string): string | null {
+  const approachTypes = loadRunwayApproachTypes();
+  const ident = (airportIdent.startsWith('K') && airportIdent.length === 4)
+    ? airportIdent.substring(1)
+    : airportIdent;
+
+  const prefix = `${ident}-`;
+  let best: string | null = null;
+
+  for (const [key, category] of approachTypes.entries()) {
+    if (!key.startsWith(prefix)) continue;
+    if (category === 'PREC') return 'PREC';       // Precision is most demanding — stop scanning
+    if (category === 'NONPREC') best = 'NONPREC';
+    if (category === 'VISUAL' && best === null) best = 'VISUAL';
+  }
+
+  return best;
+}
+
+/**
+ * Get all Washington state public-use airports
  */
 export function getWashingtonAirports(): Airport[] {
   return loadAirports();
 }
 
 /**
- * Find airport by code (ICAO, IATA, or ident)
+ * Find airport by code (ident or local code)
  */
 export function findAirportByCode(code: string): Airport | undefined {
   const allAirports = loadAirports();
   const upperCode = code.toUpperCase();
   return allAirports.find(
-    a => a.icao_code === upperCode || 
-         a.iata_code === upperCode || 
-         a.ident === upperCode
+    a => a.ident === upperCode || a.local_code === upperCode
   );
 }

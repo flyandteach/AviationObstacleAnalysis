@@ -1,5 +1,5 @@
 import type { Airport, ObstacleInput, Part77Result, SurfaceType } from '@shared/schema';
-import { getRunwaysForAirport, getRunwayApproachType } from './airportData';
+import { getRunwaysForAirport, getRunwayApproachType, getBestApproachTypeForAirport } from './airportData';
 
 /**
  * Part 77 Surface Penetration Analysis
@@ -79,16 +79,11 @@ export function analyzePart77(
         if (approachType === "PREC") break;
       }
     } else {
-      const commonEnds = ['01','02','03','04','05','06','07','08','09','10',
-        '11','12','13','14','15','16','17','18','19','20','21','22','23',
-        '24','25','26','27','28','29','30','31','32','33','34','35','36'];
-      for (const end of commonEnds) {
-        const type = getRunwayApproachType(airport.ident, end);
-        if (type) {
-          approachTypeFound = true;
-          if (type === "PREC") { approachType = "PREC"; break; }
-          if (type === "NONPREC" && approachType !== "PREC") approachType = "NONPREC";
-        }
+      // No runway records matched — scan entire approach types file for this airport
+      const best = getBestApproachTypeForAirport(airport.ident);
+      if (best) {
+        approachTypeFound = true;
+        approachType = best;
       }
     }
     
@@ -96,27 +91,32 @@ export function analyzePart77(
   }
 
   /**
-   * Calculate approach surface height at a given distance from the runway end.
-   * Per 14 CFR Part 77.25:
-   *   Utility/Visual:    20:1 slope, 5,000 ft length
-   *   Non-precision:     34:1 slope, 10,000 ft length
-   *   Precision (ILS):   50:1 for first 10,000 ft, then 40:1 for next 40,000 ft (50,000 ft total)
-   * Returns null if distanceFromEnd exceeds the approach surface length.
+   * Per 14 CFR §77.25(d) — Approach surface slopes and lengths:
+   *   Utility (any approach type):         20:1 slope,  5,000 ft
+   *   Other-than-utility, visual:          20:1 slope,  5,000 ft
+   *   Other-than-utility, non-precision:   34:1 slope, 10,000 ft
+   *   Other-than-utility, precision (ILS): 50:1 for first 10,000 ft
+   *                                        then 40:1 for next 40,000 ft (50,000 ft total)
+   * Returns null when distFromEnd exceeds the surface length (obstacle is beyond the surface).
    */
   function approachSurfaceHeightAtDistance(distFromEnd: number): number | null {
     if (distFromEnd <= 0) return 0;
     switch (approachType) {
       case "UTILITY":
+        // Utility runway (any approach type): 20:1 slope, 5,000 ft length
         if (distFromEnd > 5000) return null;
         return distFromEnd / 20;
       case "VISUAL":
-        if (distFromEnd > 10000) return null;
+        // Other-than-utility visual runway: 20:1 slope, 5,000 ft length (§77.25(d))
+        if (distFromEnd > 5000) return null;
         return distFromEnd / 20;
       case "NONPREC":
+        // Non-precision instrument: 34:1 slope, 10,000 ft length
         if (distFromEnd > 10000) return null;
         return distFromEnd / 34;
       case "PREC": {
-        // First 10,000 ft at 50:1, next 40,000 ft at 40:1
+        // Precision instrument (ILS): two-segment slope per §77.25(d)
+        // Inner 10,000 ft: 50:1; outer 40,000 ft: 40:1 (50,000 ft total)
         if (distFromEnd > 50000) return null;
         if (distFromEnd <= 10000) return distFromEnd / 50;
         return (10000 / 50) + (distFromEnd - 10000) / 40;
@@ -153,9 +153,11 @@ export function analyzePart77(
     }
   }
 
-  // 4. HORIZONTAL SURFACE (Part 77.25)
-  // Circular surface at 150 ft above airport elevation
-  const horizontalRadius = isUtilityRunway ? 5000 : 10000; // feet
+  // 4. HORIZONTAL SURFACE (§77.25(a))
+  // 150 ft above airport elevation; radius depends on runway category per §77.25(a):
+  //   5,000 ft — utility runways (< 3,200 ft) OR visual runways (no instrument approaches)
+  //   10,000 ft — all other runways (non-precision or precision instrument)
+  const horizontalRadius = (isUtilityRunway || approachType === "VISUAL") ? 5000 : 10000;
   const horizontalHeight = 150; // feet above airport elevation
   
   if (distanceFeet < horizontalRadius) {
