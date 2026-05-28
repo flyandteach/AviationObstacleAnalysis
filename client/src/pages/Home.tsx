@@ -245,9 +245,10 @@ export default function Home() {
                 FAA Part 77 Analysis for Washington State
               </h3>
               <p className="text-sm text-muted-foreground">
-                Upload an obstacle list to analyze potential penetrations of airport imaginary surfaces. 
-                This tool evaluates obstacles against approach, primary, transitional, and horizontal surfaces 
-                as defined in 14 CFR Part 77.
+                Upload an obstacle list to analyze potential penetrations of airport imaginary surfaces.
+                This tool evaluates obstacles against all Part 77 surfaces (primary, approach, transitional,
+                horizontal, and conical) as defined in 14 CFR Part 77, using FAA NASR runway-end coordinates
+                for directionally correct approach and transitional surface corridors.
               </p>
             </div>
           </div>

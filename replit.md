@@ -10,6 +10,26 @@ Users can input obstacle data via text/CSV format, and the system processes this
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Updates (May 2026)
+
+### FAA NASR Runway-End Data Integration (Major Accuracy Improvement)
+- **Previous limitation**: Approach and transitional surfaces were checked radially from the Airport Reference Point (ARP), not directionally along the runway centerline. This caused false positives (obstacles off to the side of the runway flagged as approach surface penetrations) and did not implement transitional surfaces correctly.
+- **Fix**: Integrated FAA 28-day NASR APT_RWY_END and APT_RWY data for all 117 Washington state public-use airports:
+  - **363 runway-end records** with true alignment headings and threshold coordinates (`wa_nasr_rwy_ends.json`)
+  - **400 runway-length records** for utility runway determination (`wa_nasr_runways.json`)
+- **New geometry** (per 14 CFR §77.25, computed directionally for each runway end):
+  - **Approach surface**: Trapezoidal corridor extending along the extended runway centerline in the inbound direction (`trueAlignment + 180°`). Obstacle must be within the widening trapezoid AND exceed the sloped surface to be flagged.
+  - **Transitional surface**: 7:1 lateral slope from the edges of primary and approach surfaces, correctly evaluated perpendicular to the runway axis.
+  - **Primary surface**: Rectangle along the runway body (checked via distance to centerline segment) and 200 ft extensions beyond each threshold.
+  - **Horizontal surface**: Oval shape (distance to each runway centerline segment ≤ radius), not a circle from the ARP.
+- **Approach type per runway end**:
+  1. ILS/MLS/GLS in NASR ILS_TYPE field → PREC
+  2. Curated approach-types CSV for this airport/end → PREC | NONPREC | VISUAL
+  3. Runway length < 3,200 ft → UTILITY
+  4. Conservative default → NONPREC
+- **Verified geometry**: On-axis obstacles in the BFI 14R ILS corridor correctly return `Approach Surface` penetration; off-axis obstacles (outside the trapezoidal corridor) correctly fall through to `Horizontal Surface` only.
+- **Fallback**: Airports with no NASR data use the previous conservative radial approximation.
+
 ## Recent Updates (October 2025)
 
 ### Critical Height Parsing Fix
