@@ -221,6 +221,30 @@ export function createPart77Result(
   const penetration = analyzePart77(obstacle, airport, distanceNM);
   const status = determinePenetrationStatus(penetration);
 
+  // Determine approach type for this airport (duplicating logic from analyzePart77 for surface geometry)
+  const runways = getRunwaysForAirport(airport.id);
+  const hasRunways = runways && runways.length > 0;
+  let runwayLength = 0;
+  let isUtilityRunway = false;
+  if (hasRunways) {
+    const longestRunway = runways.reduce((max, r) => r.length > max.length ? r : max, runways[0]);
+    runwayLength = longestRunway?.length || 0;
+    isUtilityRunway = runwayLength < 3200;
+  }
+  let approachType = "VISUAL";
+  if (isUtilityRunway) {
+    approachType = "UTILITY";
+  } else {
+    const best = getBestApproachTypeForAirport(airport.ident);
+    if (best) approachType = best;
+    else approachType = "NONPREC";
+  }
+
+  // Horizontal surface radius per §77.25(a)
+  const horizontalRadiusFt = (isUtilityRunway || approachType === "VISUAL") ? 5000 : 10000;
+  // Conical surface extends 4,000 ft beyond horizontal surface outer edge
+  const conicalOuterRadiusFt = horizontalRadiusFt + 4000;
+
   return {
     id: `${index + 1}`,
     obstacleId: obstacle.obstacleId,
@@ -230,9 +254,14 @@ export function createPart77Result(
     airportLongitude: airport.longitude_deg,
     distance: distanceNM,
     obstacleHeight: obstacle.heightAGL || 0,
+    obstacleHeightMSL: obstacle.heightMSL || 0,
     surfaceType: penetration.surfaceType,
     status,
+    penetrationHeight: penetration.penetrationHeight,
     latitude: obstacle.latitude,
     longitude: obstacle.longitude,
+    horizontalRadiusFt,
+    conicalOuterRadiusFt,
+    approachType,
   };
 }

@@ -79,10 +79,16 @@ export const part77ResultSchema = z.object({
   airportLongitude: z.number(),
   distance: z.number(), // in nautical miles
   obstacleHeight: z.number(),
+  obstacleHeightMSL: z.number().optional(), // MSL height used for analysis
   surfaceType: z.string(),
   status: z.enum(["penetration", "warning", "clear"]),
+  penetrationHeight: z.number().optional(), // feet above the surface
   latitude: z.number(),
   longitude: z.number(),
+  // Surface geometry for map visualization
+  horizontalRadiusFt: z.number(),   // radius of horizontal surface in feet
+  conicalOuterRadiusFt: z.number(), // outer radius of conical surface in feet
+  approachType: z.string(),         // UTILITY | VISUAL | NONPREC | PREC
 });
 
 export type Part77Result = z.infer<typeof part77ResultSchema>;

@@ -67,14 +67,32 @@ Preferred communication style: Simple, everyday language.
   - Falls back to `ident` if `local_code` is unavailable
 - **Example**: Auburn Municipal Airport displays as "S50" not "KS50"
 
+### Multi-Airport Evaluation (Critical Correctness Fix)
+- **Issue**: App was only checking the nearest airport; obstacles between two airports could miss a more restrictive surface
+- **Fix**: Now evaluates every airport within 10 NM of each obstacle
+  - 10 NM radius covers all Part 77 surfaces: horizontal (≤1.65 NM), conical (≤2.3 NM), precision approach (≤9 NM)
+  - Returns the most restrictive (worst-case) result across all airports checked
+  - Worst-case priority: penetration > warning > clear; then by penetration depth; then by distance
+  - Always falls back to nearest airport if no airports within 10 NM
+
+### Part 77 Surface Visualization on Map
+- **Feature**: Horizontal and conical surfaces are now drawn on the interactive map
+  - Solid blue circle = horizontal surface (5,000 ft radius for visual/utility, 10,000 ft for instrument)
+  - Dashed purple circle = outer edge of conical surface (horizontal + 4,000 ft)
+  - Airport popup shows approach type, horizontal radius (NM), and conical outer edge (NM)
+- **Limitation**: Approach and transitional surfaces are directional (extend along runway centerline extended) and require runway heading/position data to draw accurately; they are evaluated mathematically but not drawn on the map
+
+### Penetration Depth Reporting
+- **Feature**: API now returns `penetrationHeight` — how many feet the obstacle exceeds the penetrating surface
+- **Displayed**: Shown in the obstacle popup on the map (e.g. "Penetration depth: 260 ft")
+
 ### Airport Markers on Map
-- **Feature**: Closest airport is now marked on the interactive map
+- **Feature**: Controlling airport is marked on the interactive map
 - **Implementation**:
   - Blue markers with airplane icon show airport locations
-  - Airport popup displays identifier and full name
-  - Duplicate airports automatically merged (same airport can be nearest to multiple obstacles)
-  - Map legend includes airport marker indicator
-- **Data flow**: API returns airport coordinates with each obstacle analysis result
+  - Airport popup displays identifier, full name, approach type, and surface radii
+  - Duplicate airports automatically merged
+  - Map legend includes surface ring indicators
 
 ### Obstacle Filtering
 - **Confirmed**: Application correctly filters "determined" status obstacles
