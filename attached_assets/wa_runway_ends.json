@@ -1,0 +1,2910 @@
+[
+  {
+    "airport": "06WN",
+    "lengthFt": 2845,
+    "widthFt": 30,
+    "end1": {
+      "designator": "9",
+      "lat": 46.92630005,
+      "lon": -122.5579987
+    },
+    "end2": {
+      "designator": "27",
+      "lat": 46.92359924,
+      "lon": -122.5479965
+    }
+  },
+  {
+    "airport": "09S",
+    "lengthFt": 1765,
+    "widthFt": 150,
+    "end1": {
+      "designator": "16",
+      "lat": 48.84329987,
+      "lon": -117.2839966
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 48.83850098,
+      "lon": -117.2839966
+    }
+  },
+  {
+    "airport": "11S",
+    "lengthFt": 2997,
+    "widthFt": 50,
+    "end1": {
+      "designator": "8",
+      "lat": 48.26689911,
+      "lon": -124.3199997
+    },
+    "end2": {
+      "designator": "26",
+      "lat": 48.26539993,
+      "lon": -124.3079987
+    }
+  },
+  {
+    "airport": "14S",
+    "lengthFt": 2318,
+    "widthFt": 50,
+    "end1": {
+      "designator": "12",
+      "lat": 46.89929962,
+      "lon": -124.1039963
+    },
+    "end2": {
+      "designator": "30",
+      "lat": 46.89459991,
+      "lon": -124.0979996
+    }
+  },
+  {
+    "airport": "1S2",
+    "lengthFt": 2491,
+    "widthFt": 40,
+    "end1": {
+      "designator": "10",
+      "lat": 48.25979996,
+      "lon": -121.6149979
+    },
+    "end2": {
+      "designator": "28",
+      "lat": 48.25740051,
+      "lon": -121.6050034
+    }
+  },
+  {
+    "airport": "1S6",
+    "lengthFt": 2950,
+    "widthFt": 48,
+    "end1": {
+      "designator": "1",
+      "lat": 48.18740082,
+      "lon": -116.913002
+    },
+    "end2": {
+      "designator": "19",
+      "lat": 48.19400024,
+      "lon": -116.9059982
+    }
+  },
+  {
+    "airport": "1W1",
+    "lengthFt": 2710,
+    "widthFt": 40,
+    "end1": {
+      "designator": "7",
+      "lat": 45.62789917,
+      "lon": -122.4100037
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 45.62779999,
+      "lon": -122.3990021
+    }
+  },
+  {
+    "airport": "1WA6",
+    "lengthFt": 3000,
+    "widthFt": 25,
+    "end1": {
+      "designator": "E",
+      "lat": 47.55939865,
+      "lon": -121.8700027
+    },
+    "end2": {
+      "designator": "W",
+      "lat": 47.55970001,
+      "lon": -121.8580017
+    }
+  },
+  {
+    "airport": "27W",
+    "lengthFt": 2473,
+    "widthFt": 100,
+    "end1": {
+      "designator": "9",
+      "lat": 47.82049942,
+      "lon": -120.7249985
+    },
+    "end2": {
+      "designator": "27",
+      "lat": 47.81829834,
+      "lon": -120.7149963
+    }
+  },
+  {
+    "airport": "2S0",
+    "lengthFt": 2701,
+    "widthFt": 36,
+    "end1": {
+      "designator": "10",
+      "lat": 48.35229874,
+      "lon": -120.098999
+    },
+    "end2": {
+      "designator": "28",
+      "lat": 48.34880066,
+      "lon": -120.0889969
+    }
+  },
+  {
+    "airport": "2S1",
+    "lengthFt": 2001,
+    "widthFt": 60,
+    "end1": {
+      "designator": "17",
+      "lat": 47.4612999,
+      "lon": -122.4759979
+    },
+    "end2": {
+      "designator": "35",
+      "lat": 47.45589828,
+      "lon": -122.4769974
+    }
+  },
+  {
+    "airport": "2S5",
+    "lengthFt": 2978,
+    "widthFt": 50,
+    "end1": {
+      "designator": "7",
+      "lat": 47.65599823,
+      "lon": -120.0630035
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 47.65599823,
+      "lon": -120.0500031
+    }
+  },
+  {
+    "airport": "2W1",
+    "lengthFt": 2055,
+    "widthFt": 30,
+    "end1": {
+      "designator": "8",
+      "lat": 47.1780014,
+      "lon": -120.8570023
+    },
+    "end2": {
+      "designator": "26",
+      "lat": 47.17720032,
+      "lon": -120.848999
+    }
+  },
+  {
+    "airport": "38W",
+    "lengthFt": 2425,
+    "widthFt": 40,
+    "end1": {
+      "designator": "7",
+      "lat": 48.95600128,
+      "lon": -122.4629974
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 48.9557991,
+      "lon": -122.4530029
+    }
+  },
+  {
+    "airport": "39P",
+    "lengthFt": 1810,
+    "widthFt": 40,
+    "end1": {
+      "designator": "7",
+      "lat": 46.55039978,
+      "lon": -122.2699966
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 46.55039978,
+      "lon": -122.2630005
+    }
+  },
+  {
+    "airport": "3W5",
+    "lengthFt": 2609,
+    "widthFt": 60,
+    "end1": {
+      "designator": "7",
+      "lat": 48.5298996,
+      "lon": -121.7639999
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 48.52980042,
+      "lon": -121.7529984
+    }
+  },
+  {
+    "airport": "4S6",
+    "lengthFt": 2509,
+    "widthFt": 140,
+    "end1": {
+      "designator": "2",
+      "lat": 46.63499832,
+      "lon": -121.1269989
+    },
+    "end2": {
+      "designator": "20",
+      "lat": 46.64009857,
+      "lon": -121.1210022
+    }
+  },
+  {
+    "airport": "4W0",
+    "lengthFt": 2344,
+    "widthFt": 200,
+    "end1": {
+      "designator": "8",
+      "lat": 47.39599991,
+      "lon": -121.5410004
+    },
+    "end2": {
+      "designator": "26",
+      "lat": 47.3946991,
+      "lon": -121.5319977
+    }
+  },
+  {
+    "airport": "4WA0",
+    "lengthFt": 3700,
+    "widthFt": 65,
+    "end1": {
+      "designator": "7",
+      "lat": 46.94029999,
+      "lon": -119.7450027
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 46.94029999,
+      "lon": -119.7300034
+    }
+  },
+  {
+    "airport": "55XS",
+    "lengthFt": 2356,
+    "widthFt": 38,
+    "end1": {
+      "designator": "1",
+      "lat": 46.60129929,
+      "lon": -121.6800003
+    },
+    "end2": {
+      "designator": "19",
+      "lat": 46.60699844,
+      "lon": -121.6760025
+    }
+  },
+  {
+    "airport": "56WI",
+    "lengthFt": 2211,
+    "widthFt": 50,
+    "end1": {
+      "designator": "16",
+      "lat": 46.01800156,
+      "lon": -123.9079971
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 46.01200104,
+      "lon": -123.9079971
+    }
+  },
+  {
+    "airport": "5Y0",
+    "lengthFt": 3700,
+    "widthFt": 40,
+    "end1": {
+      "designator": "6",
+      "lat": 47.04190063,
+      "lon": -124.1529999
+    },
+    "end2": {
+      "designator": "24",
+      "lat": 47.04389954,
+      "lon": -124.1380005
+    }
+  },
+  {
+    "airport": "63XS",
+    "lengthFt": 2695,
+    "widthFt": 40,
+    "end1": {
+      "designator": "1",
+      "lat": 48.54119873,
+      "lon": -117.887001
+    },
+    "end2": {
+      "designator": "19",
+      "lat": 48.54710007,
+      "lon": -117.8799973
+    }
+  },
+  {
+    "airport": "69TX",
+    "lengthFt": 1975,
+    "widthFt": 40,
+    "end1": {
+      "designator": "17",
+      "lat": 49.00109863,
+      "lon": -118.2220001
+    },
+    "end2": {
+      "designator": "35",
+      "lat": 48.99570084,
+      "lon": -118.2229996
+    }
+  },
+  {
+    "airport": "15W",
+    "lengthFt": 4226,
+    "widthFt": 200,
+    "end1": {
+      "designator": "33W",
+      "lat": 47.40167999,
+      "lon": -122.4467773
+    },
+    "end2": {
+      "designator": "4W",
+      "lat": 47.39051056,
+      "lon": -122.4422531
+    }
+  },
+  {
+    "airport": "15W",
+    "lengthFt": 5637,
+    "widthFt": 200,
+    "end1": {
+      "designator": "22W",
+      "lat": 47.39521027,
+      "lon": -122.4611282
+    },
+    "end2": {
+      "designator": "6A6",
+      "lat": 47.40319061,
+      "lon": -122.4416428
+    }
+  },
+  {
+    "airport": "6Y0",
+    "lengthFt": 2554,
+    "widthFt": 60,
+    "end1": {
+      "designator": "16",
+      "lat": 46.62030029,
+      "lon": -119.2740021
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 46.61330032,
+      "lon": -119.2750015
+    }
+  },
+  {
+    "airport": "71K",
+    "lengthFt": 2481,
+    "widthFt": 30,
+    "end1": {
+      "designator": "16",
+      "lat": 47.79059982,
+      "lon": -117.3580017
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 47.78379822,
+      "lon": -117.3580017
+    }
+  },
+  {
+    "airport": "72TE",
+    "lengthFt": 2800,
+    "widthFt": 45,
+    "end1": {
+      "designator": "2",
+      "lat": 47.23360062,
+      "lon": -117.4250031
+    },
+    "end2": {
+      "designator": "20",
+      "lat": 47.23960114,
+      "lon": -117.4179993
+    }
+  },
+  {
+    "airport": "74TE",
+    "lengthFt": 2260,
+    "widthFt": 40,
+    "end1": {
+      "designator": "4",
+      "lat": 47.23389816,
+      "lon": -117.0479965
+    },
+    "end2": {
+      "designator": "22",
+      "lat": 47.23709869,
+      "lon": -117.0400009
+    }
+  },
+  {
+    "airport": "7W7",
+    "lengthFt": 2080,
+    "widthFt": 50,
+    "end1": {
+      "designator": "10",
+      "lat": 46.31629944,
+      "lon": -124.0070038
+    },
+    "end2": {
+      "designator": "28",
+      "lat": 46.31349945,
+      "lon": -124
+    }
+  },
+  {
+    "airport": "8WI1",
+    "lengthFt": 2575,
+    "widthFt": 46,
+    "end1": {
+      "designator": "3",
+      "lat": 47.80720139,
+      "lon": -119.6409988
+    },
+    "end2": {
+      "designator": "21",
+      "lat": 47.81150055,
+      "lon": -119.6330032
+    }
+  },
+  {
+    "airport": "9SD9",
+    "lengthFt": 45,
+    "widthFt": 45,
+    "end1": {
+      "designator": "HX",
+      "lat": 45.5128,
+      "lon": -122.5547
+    },
+    "end2": {
+      "designator": "H2"
+    }
+  },
+  {
+    "airport": "CAD5",
+    "lengthFt": 4000,
+    "widthFt": 75,
+    "end1": {
+      "designator": "16",
+      "lat": 49.07210159,
+      "lon": -117.5999985
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 49.06119919,
+      "lon": -117.5999985
+    }
+  },
+  {
+    "airport": "CYCE",
+    "lengthFt": 6602,
+    "widthFt": 150,
+    "end1": {
+      "designator": "16",
+      "lat": 49.05920029,
+      "lon": -123.8700027
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 49.04550171,
+      "lon": -123.8700027
+    }
+  },
+  {
+    "airport": "01L",
+    "lengthFt": 5328,
+    "widthFt": 200,
+    "end1": {
+      "designator": "1",
+      "lat": 49.01860046,
+      "lon": -122.3789978
+    },
+    "end2": {
+      "designator": "19",
+      "lat": 49.03139877,
+      "lon": -122.3700027
+    }
+  },
+  {
+    "airport": "01L",
+    "lengthFt": 1500,
+    "widthFt": 100,
+    "end1": {
+      "designator": "19R",
+      "lat": 49.02610016,
+      "lon": -122.3740005
+    },
+    "end2": {
+      "designator": "CYXY",
+      "lat": 49.02970123,
+      "lon": -122.3710022
+    }
+  },
+  {
+    "airport": "01L",
+    "lengthFt": 9600,
+    "widthFt": 200,
+    "end1": {
+      "designator": "7",
+      "lat": 49.01890182,
+      "lon": -122.3799973
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 49.020401,
+      "lon": -122.3399963
+    }
+  },
+  {
+    "airport": "CYYL",
+    "lengthFt": 5027,
+    "widthFt": 200,
+    "end1": {
+      "designator": "3",
+      "lat": 48.64189911,
+      "lon": -123.4339981
+    },
+    "end2": {
+      "designator": "21",
+      "lat": 48.65190125,
+      "lon": -123.4189987
+    }
+  },
+  {
+    "airport": "CYYL",
+    "lengthFt": 7000,
+    "widthFt": 200,
+    "end1": {
+      "designator": "9",
+      "lat": 48.65100098,
+      "lon": -123.4400024
+    },
+    "end2": {
+      "designator": "27",
+      "lat": 48.64599991,
+      "lon": -123.4120026
+    }
+  },
+  {
+    "airport": "CYYL",
+    "lengthFt": 5001,
+    "widthFt": 200,
+    "end1": {
+      "designator": "14",
+      "lat": 48.65250015,
+      "lon": -123.4329987
+    },
+    "end2": {
+      "designator": "32",
+      "lat": 48.6405983,
+      "lon": -123.4229965
+    }
+  },
+  {
+    "airport": "CZBF",
+    "lengthFt": 4865,
+    "widthFt": 75,
+    "end1": {
+      "designator": "3",
+      "lat": 49.06669998,
+      "lon": -123.0070038
+    },
+    "end2": {
+      "designator": "21",
+      "lat": 49.0780983,
+      "lon": -122.9960022
+    }
+  },
+  {
+    "airport": "CZBF",
+    "lengthFt": 5606,
+    "widthFt": 100,
+    "end1": {
+      "designator": "7",
+      "lat": 49.0780983,
+      "lon": -123.0199966
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 49.07789993,
+      "lon": -122.9960022
+    }
+  },
+  {
+    "airport": "CZBF",
+    "lengthFt": 5605,
+    "widthFt": 100,
+    "end1": {
+      "designator": "13",
+      "lat": 49.07820129,
+      "lon": -123.0189972
+    },
+    "end2": {
+      "designator": "31",
+      "lat": 49.06990051,
+      "lon": -123.0100021
+    }
+  },
+  {
+    "airport": "CZHP",
+    "lengthFt": 4300,
+    "widthFt": 100,
+    "end1": {
+      "designator": "7",
+      "lat": 49.01530075,
+      "lon": -118.439003
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 49.01530075,
+      "lon": -118.4209976
+    }
+  },
+  {
+    "airport": "K0S7",
+    "lengthFt": 3197,
+    "widthFt": 50,
+    "end1": {
+      "designator": "5",
+      "lat": 46.97489929,
+      "lon": -118.5930023
+    },
+    "end2": {
+      "designator": "23",
+      "lat": 46.97880173,
+      "lon": -118.5810013
+    }
+  },
+  {
+    "airport": "K0S9",
+    "lengthFt": 4014,
+    "widthFt": 50,
+    "end1": {
+      "designator": "15",
+      "lat": 48.96429825,
+      "lon": -119.4140015
+    },
+    "end2": {
+      "designator": "33",
+      "lat": 48.95360184,
+      "lon": -119.4100037
+    }
+  },
+  {
+    "airport": "K0V3",
+    "lengthFt": 3000,
+    "widthFt": 75,
+    "end1": {
+      "designator": "9",
+      "lat": 48.05479813,
+      "lon": -122.8170013
+    },
+    "end2": {
+      "designator": "27",
+      "lat": 48.05279922,
+      "lon": -122.8050003
+    }
+  },
+  {
+    "airport": "K1S9",
+    "lengthFt": 3423,
+    "widthFt": 60,
+    "end1": {
+      "designator": "7",
+      "lat": 46.32709885,
+      "lon": -119.9769974
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 46.32699966,
+      "lon": -119.9639969
+    }
+  },
+  {
+    "airport": "K1T7",
+    "lengthFt": 3446,
+    "widthFt": 48,
+    "end1": {
+      "designator": "17",
+      "lat": 48.31869888,
+      "lon": -117.7419968
+    },
+    "end2": {
+      "designator": "35",
+      "lat": 48.30939865,
+      "lon": -117.7450027
+    }
+  },
+  {
+    "airport": "K2S7",
+    "lengthFt": 2811,
+    "widthFt": 60,
+    "end1": {
+      "designator": "17",
+      "lat": 46.96960068,
+      "lon": -119.0660019
+    },
+    "end2": {
+      "designator": "35",
+      "lat": 46.96110153,
+      "lon": -119.0670013
+    }
+  },
+  {
+    "airport": "K2S9",
+    "lengthFt": 3119,
+    "widthFt": 35,
+    "end1": {
+      "designator": "2",
+      "lat": 47.75080109,
+      "lon": -118.7470016
+    },
+    "end2": {
+      "designator": "20",
+      "lat": 47.75770187,
+      "lon": -118.7389984
+    }
+  },
+  {
+    "airport": "K2T1",
+    "lengthFt": 3005,
+    "widthFt": 52,
+    "end1": {
+      "designator": "11",
+      "lat": 46.70050049,
+      "lon": -123.8280029
+    },
+    "end2": {
+      "designator": "29",
+      "lat": 46.69469833,
+      "lon": -123.8190002
+    }
+  },
+  {
+    "airport": "K33U",
+    "lengthFt": 3635,
+    "widthFt": 40,
+    "end1": {
+      "designator": "1",
+      "lat": 47.11880112,
+      "lon": -118.3929977
+    },
+    "end2": {
+      "designator": "19",
+      "lat": 47.12760162,
+      "lon": -118.3860016
+    }
+  },
+  {
+    "airport": "K36K",
+    "lengthFt": 3450,
+    "widthFt": 60,
+    "end1": {
+      "designator": "7",
+      "lat": 45.58940125,
+      "lon": -120.6809998
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 45.58940125,
+      "lon": -120.6679993
+    }
+  },
+  {
+    "airport": "K3W8",
+    "lengthFt": 4199,
+    "widthFt": 75,
+    "end1": {
+      "designator": "3",
+      "lat": 47.91839981,
+      "lon": -119.0899963
+    },
+    "end2": {
+      "designator": "21",
+      "lat": 47.92559814,
+      "lon": -119.0759964
+    }
+  },
+  {
+    "airport": "K44C",
+    "lengthFt": 3125,
+    "widthFt": 60,
+    "end1": {
+      "designator": "2",
+      "lat": 47.35440063,
+      "lon": -118.6760025
+    },
+    "end2": {
+      "designator": "20",
+      "lat": 47.36190033,
+      "lon": -118.6699982
+    }
+  },
+  {
+    "airport": "K4S3",
+    "lengthFt": 3040,
+    "widthFt": 75,
+    "end1": {
+      "designator": "7",
+      "lat": 45.67250061,
+      "lon": -121.5429993
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 45.67279816,
+      "lon": -121.5309982
+    }
+  },
+  {
+    "airport": "K5W4",
+    "lengthFt": 3074,
+    "widthFt": 50,
+    "end1": {
+      "designator": "10",
+      "lat": 47.42689896,
+      "lon": -119.1210022
+    },
+    "end2": {
+      "designator": "28",
+      "lat": 47.42279816,
+      "lon": -119.1100006
+    }
+  },
+  {
+    "airport": "K69K",
+    "lengthFt": 2271,
+    "widthFt": 45,
+    "end1": {
+      "designator": "3",
+      "lat": 47.65250015,
+      "lon": -118.1719971
+    },
+    "end2": {
+      "designator": "21",
+      "lat": 47.65589905,
+      "lon": -118.1650009
+    }
+  },
+  {
+    "airport": "K69K",
+    "lengthFt": 3107,
+    "widthFt": 50,
+    "end1": {
+      "designator": "5",
+      "lat": 47.65190125,
+      "lon": -118.1750031
+    },
+    "end2": {
+      "designator": "23",
+      "lat": 47.65430069,
+      "lon": -118.163002
+    }
+  },
+  {
+    "airport": "K74V",
+    "lengthFt": 3015,
+    "widthFt": 60,
+    "end1": {
+      "designator": "18",
+      "lat": 48.50279999,
+      "lon": -122.6610031
+    },
+    "end2": {
+      "designator": "36",
+      "lat": 48.49499893,
+      "lon": -122.6640015
+    }
+  },
+  {
+    "airport": "K81B",
+    "lengthFt": 3660,
+    "widthFt": 50,
+    "end1": {
+      "designator": "9",
+      "lat": 47.21300125,
+      "lon": -119.8470001
+    },
+    "end2": {
+      "designator": "27",
+      "lat": 47.21020126,
+      "lon": -119.8330002
+    }
+  },
+  {
+    "airport": "KALX",
+    "lengthFt": 6526,
+    "widthFt": 150,
+    "end1": {
+      "designator": "2",
+      "lat": 46.08530045,
+      "lon": -118.2919998
+    },
+    "end2": {
+      "designator": "20",
+      "lat": 46.09980011,
+      "lon": -118.2770004
+    }
+  },
+  {
+    "airport": "KALX",
+    "lengthFt": 4486,
+    "widthFt": 150,
+    "end1": {
+      "designator": "7",
+      "lat": 46.09899902,
+      "lon": -118.2969971
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 46.09909821,
+      "lon": -118.2799988
+    }
+  },
+  {
+    "airport": "KALX",
+    "lengthFt": 5948,
+    "widthFt": 150,
+    "end1": {
+      "designator": "16",
+      "lat": 46.10219955,
+      "lon": -118.2949982
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 46.08589935,
+      "lon": -118.2949982
+    }
+  },
+  {
+    "airport": "KASW",
+    "lengthFt": 5796,
+    "widthFt": 100,
+    "end1": {
+      "designator": "8",
+      "lat": 46.15980148,
+      "lon": -123.8899994
+    },
+    "end2": {
+      "designator": "26",
+      "lat": 46.15829849,
+      "lon": -123.8669968
+    }
+  },
+  {
+    "airport": "KASW",
+    "lengthFt": 4996,
+    "widthFt": 100,
+    "end1": {
+      "designator": "13",
+      "lat": 46.16289902,
+      "lon": -123.8830032
+    },
+    "end2": {
+      "designator": "31",
+      "lat": 46.15060043,
+      "lon": -123.875
+    }
+  },
+  {
+    "airport": "KAXA",
+    "lengthFt": 3500,
+    "widthFt": 75,
+    "end1": {
+      "designator": "11",
+      "lat": 48.1617012,
+      "lon": -122.1689987
+    },
+    "end2": {
+      "designator": "29",
+      "lat": 48.15589905,
+      "lon": -122.1569977
+    }
+  },
+  {
+    "airport": "KAXA",
+    "lengthFt": 5333,
+    "widthFt": 100,
+    "end1": {
+      "designator": "16",
+      "lat": 48.16930008,
+      "lon": -122.1569977
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 48.15470123,
+      "lon": -122.1559982
+    }
+  },
+  {
+    "airport": "KBFK",
+    "lengthFt": 3709,
+    "widthFt": 100,
+    "end1": {
+      "designator": "32R",
+      "lat": 47.5379982,
+      "lon": -122.3069992
+    },
+    "end2": {
+      "designator": "14R",
+      "lat": 47.52920151,
+      "lon": -122.3000031
+    }
+  },
+  {
+    "airport": "KBFK",
+    "lengthFt": 10007,
+    "widthFt": 200,
+    "end1": {
+      "designator": "32L",
+      "lat": 47.54050064,
+      "lon": -122.310997
+    },
+    "end2": {
+      "designator": "AYTK",
+      "lat": 47.51679993,
+      "lon": -122.2910004
+    }
+  },
+  {
+    "airport": "KBLM",
+    "lengthFt": 6701,
+    "widthFt": 150,
+    "end1": {
+      "designator": "16",
+      "lat": 48.80189896,
+      "lon": -122.538002
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 48.78350067,
+      "lon": -122.5370026
+    }
+  },
+  {
+    "airport": "KBVX",
+    "lengthFt": 3000,
+    "widthFt": 60,
+    "end1": {
+      "designator": "4",
+      "lat": 48.46409988,
+      "lon": -122.4240036
+    },
+    "end2": {
+      "designator": "22",
+      "lat": 48.46860123,
+      "lon": -122.4140015
+    }
+  },
+  {
+    "airport": "KBVX",
+    "lengthFt": 5477,
+    "widthFt": 100,
+    "end1": {
+      "designator": "11",
+      "lat": 48.47779846,
+      "lon": -122.4309998
+    },
+    "end2": {
+      "designator": "29",
+      "lat": 48.46889877,
+      "lon": -122.413002
+    }
+  },
+  {
+    "airport": "KCLR",
+    "lengthFt": 6347,
+    "widthFt": 150,
+    "end1": {
+      "designator": "8",
+      "lat": 48.12099838,
+      "lon": -123.512001
+    },
+    "end2": {
+      "designator": "26",
+      "lat": 48.11669922,
+      "lon": -123.4860001
+    }
+  },
+  {
+    "airport": "KCLR",
+    "lengthFt": 3245,
+    "widthFt": 50,
+    "end1": {
+      "designator": "13",
+      "lat": 48.12659836,
+      "lon": -123.5049973
+    },
+    "end2": {
+      "designator": "31",
+      "lat": 48.11909866,
+      "lon": -123.4980011
+    }
+  },
+  {
+    "airport": "KCLT",
+    "lengthFt": 5000,
+    "widthFt": 150,
+    "end1": {
+      "designator": "16",
+      "lat": 46.68389893,
+      "lon": -122.9830017
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 46.67020035,
+      "lon": -122.9820023
+    }
+  },
+  {
+    "airport": "KDFI",
+    "lengthFt": 3200,
+    "widthFt": 60,
+    "end1": {
+      "designator": "4",
+      "lat": 47.96210098,
+      "lon": -117.4290009
+    },
+    "end2": {
+      "designator": "22",
+      "lat": 47.96640015,
+      "lon": -117.4179993
+    }
+  },
+  {
+    "airport": "KDFI",
+    "lengthFt": 6100,
+    "widthFt": 75,
+    "end1": {
+      "designator": "16",
+      "lat": 47.97689819,
+      "lon": -117.4309998
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 47.96020126,
+      "lon": -117.4309998
+    }
+  },
+  {
+    "airport": "KDLZ",
+    "lengthFt": 4647,
+    "widthFt": 100,
+    "end1": {
+      "designator": "7",
+      "lat": 45.62080002,
+      "lon": -121.1780014
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 45.62129974,
+      "lon": -121.1600037
+    }
+  },
+  {
+    "airport": "KDLZ",
+    "lengthFt": 5097,
+    "widthFt": 100,
+    "end1": {
+      "designator": "12",
+      "lat": 45.62350082,
+      "lon": -121.1729965
+    },
+    "end2": {
+      "designator": "30",
+      "lat": 45.61209869,
+      "lon": -121.1620026
+    }
+  },
+  {
+    "airport": "KEAU",
+    "lengthFt": 4460,
+    "widthFt": 150,
+    "end1": {
+      "designator": "7",
+      "lat": 47.39860153,
+      "lon": -120.2149963
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 47.39860153,
+      "lon": -120.1969986
+    }
+  },
+  {
+    "airport": "KEAU",
+    "lengthFt": 7000,
+    "widthFt": 150,
+    "end1": {
+      "designator": "12",
+      "lat": 47.40319824,
+      "lon": -120.2139969
+    },
+    "end2": {
+      "designator": "30",
+      "lat": 47.39220047,
+      "lon": -120.1969986
+    }
+  },
+  {
+    "airport": "KELO",
+    "lengthFt": 5590,
+    "widthFt": 150,
+    "end1": {
+      "designator": "7",
+      "lat": 47.03139877,
+      "lon": -120.5429993
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 47.0318985,
+      "lon": -120.5210037
+    }
+  },
+  {
+    "airport": "KELO",
+    "lengthFt": 4300,
+    "widthFt": 150,
+    "end1": {
+      "designator": "11",
+      "lat": 47.03889847,
+      "lon": -120.5350037
+    },
+    "end2": {
+      "designator": "29",
+      "lat": 47.03079987,
+      "lon": -120.5230026
+    }
+  },
+  {
+    "airport": "KEPM",
+    "lengthFt": 5500,
+    "widthFt": 75,
+    "end1": {
+      "designator": "3",
+      "lat": 47.30590057,
+      "lon": -119.5220032
+    },
+    "end2": {
+      "designator": "21",
+      "lat": 47.31689835,
+      "lon": -119.5070038
+    }
+  },
+  {
+    "airport": "KEPM",
+    "lengthFt": 3467,
+    "widthFt": 150,
+    "end1": {
+      "designator": "4",
+      "lat": 47.30670166,
+      "lon": -119.5250015
+    },
+    "end2": {
+      "designator": "22",
+      "lat": 47.31370163,
+      "lon": -119.5149994
+    }
+  },
+  {
+    "airport": "KEPM",
+    "lengthFt": 3843,
+    "widthFt": 60,
+    "end1": {
+      "designator": "11",
+      "lat": 47.30459976,
+      "lon": -119.5240021
+    },
+    "end2": {
+      "designator": "29",
+      "lat": 47.2981987,
+      "lon": -119.512001
+    }
+  },
+  {
+    "airport": "KEPM",
+    "lengthFt": 6630,
+    "widthFt": 150,
+    "end1": {
+      "designator": "16",
+      "lat": 47.31639862,
+      "lon": -119.5110016
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 47.2983017,
+      "lon": -119.5110016
+    }
+  },
+  {
+    "airport": "KETB",
+    "lengthFt": 2640,
+    "widthFt": 100,
+    "end1": {
+      "designator": "9",
+      "lat": 47.25590134,
+      "lon": -121.1900024
+    },
+    "end2": {
+      "designator": "27",
+      "lat": 47.25249863,
+      "lon": -121.1809998
+    }
+  },
+  {
+    "airport": "KFCY",
+    "lengthFt": 1602,
+    "widthFt": 50,
+    "end1": {
+      "designator": "23H",
+      "lat": 46.665798,
+      "lon": -120.458
+    },
+    "end2": {
+      "designator": "EPAR",
+      "lat": 46.668098,
+      "lon": -120.450996
+    }
+  },
+  {
+    "airport": "KFHU",
+    "lengthFt": 3402,
+    "widthFt": 75,
+    "end1": {
+      "designator": "16",
+      "lat": 48.52659988,
+      "lon": -123.0250015
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 48.51729965,
+      "lon": -123.0240021
+    }
+  },
+  {
+    "airport": "KGEO",
+    "lengthFt": 11002,
+    "widthFt": 150,
+    "end1": {
+      "designator": "3",
+      "lat": 47.61389923,
+      "lon": -117.5439987
+    },
+    "end2": {
+      "designator": "21",
+      "lat": 47.63119888,
+      "lon": -117.5179977
+    }
+  },
+  {
+    "airport": "KGEO",
+    "lengthFt": 8198,
+    "widthFt": 150,
+    "end1": {
+      "designator": "7",
+      "lat": 47.61700058,
+      "lon": -117.5530014
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 47.6167984,
+      "lon": -117.5199966
+    }
+  },
+  {
+    "airport": "KGRI",
+    "lengthFt": 6125,
+    "widthFt": 150,
+    "end1": {
+      "designator": "15",
+      "lat": 47.08739853,
+      "lon": -122.5839996
+    },
+    "end2": {
+      "designator": "33",
+      "lat": 47.07099915,
+      "lon": -122.5780029
+    }
+  },
+  {
+    "airport": "KHJH",
+    "lengthFt": 4049,
+    "widthFt": 100,
+    "end1": {
+      "designator": "2",
+      "lat": 45.53359985,
+      "lon": -122.9530029
+    },
+    "end2": {
+      "designator": "20",
+      "lat": 45.542099,
+      "lon": -122.9420013
+    }
+  },
+  {
+    "airport": "KHJH",
+    "lengthFt": 6600,
+    "widthFt": 150,
+    "end1": {
+      "designator": "31L",
+      "lat": 45.54959869,
+      "lon": -122.9599991
+    },
+    "end2": {
+      "designator": "CYOJ",
+      "lat": 45.53499985,
+      "lon": -122.9440002
+    }
+  },
+  {
+    "airport": "KHQU",
+    "lengthFt": 5000,
+    "widthFt": 150,
+    "end1": {
+      "designator": "6",
+      "lat": 46.97000122,
+      "lon": -123.9459991
+    },
+    "end2": {
+      "designator": "24",
+      "lat": 46.97240067,
+      "lon": -123.927002
+    }
+  },
+  {
+    "airport": "KHRJ",
+    "lengthFt": 4500,
+    "widthFt": 75,
+    "end1": {
+      "designator": "5",
+      "lat": 45.82540131,
+      "lon": -119.2669983
+    },
+    "end2": {
+      "designator": "23",
+      "lat": 45.83110046,
+      "lon": -119.2509995
+    }
+  },
+  {
+    "airport": "KKNB",
+    "lengthFt": 4391,
+    "widthFt": 100,
+    "end1": {
+      "designator": "12",
+      "lat": 46.12260056,
+      "lon": -122.9039993
+    },
+    "end2": {
+      "designator": "30",
+      "lat": 46.11339951,
+      "lon": -122.8929977
+    }
+  },
+  {
+    "airport": "KLWT",
+    "lengthFt": 6511,
+    "widthFt": 150,
+    "end1": {
+      "designator": "8",
+      "lat": 46.37379837,
+      "lon": -117.0279999
+    },
+    "end2": {
+      "designator": "26",
+      "lat": 46.37099838,
+      "lon": -117.0019989
+    }
+  },
+  {
+    "airport": "KLWT",
+    "lengthFt": 5002,
+    "widthFt": 100,
+    "end1": {
+      "designator": "12",
+      "lat": 46.38180161,
+      "lon": -117.0240021
+    },
+    "end2": {
+      "designator": "30",
+      "lat": 46.37269974,
+      "lon": -117.0090027
+    }
+  },
+  {
+    "airport": "KM51",
+    "lengthFt": 4200,
+    "widthFt": 100,
+    "end1": {
+      "designator": "4",
+      "lat": 45.81209946,
+      "lon": -119.8280029
+    },
+    "end2": {
+      "designator": "22",
+      "lat": 45.81750107,
+      "lon": -119.8130035
+    }
+  },
+  {
+    "airport": "KM95",
+    "lengthFt": 3665,
+    "widthFt": 36,
+    "end1": {
+      "designator": "10",
+      "lat": 46.68939972,
+      "lon": -119.9260025
+    },
+    "end2": {
+      "designator": "28",
+      "lat": 46.68510056,
+      "lon": -119.913002
+    }
+  },
+  {
+    "airport": "KMWK",
+    "lengthFt": 10000,
+    "widthFt": 100,
+    "end1": {
+      "designator": "4",
+      "lat": 47.19670105,
+      "lon": -119.3330002
+    },
+    "end2": {
+      "designator": "22",
+      "lat": 47.21279907,
+      "lon": -119.3000031
+    }
+  },
+  {
+    "airport": "KMWK",
+    "lengthFt": 3500,
+    "widthFt": 90,
+    "end1": {
+      "designator": "9",
+      "lat": 47.21770096,
+      "lon": -119.3170013
+    },
+    "end2": {
+      "designator": "27",
+      "lat": 47.21469879,
+      "lon": -119.3040009
+    }
+  },
+  {
+    "airport": "KMWK",
+    "lengthFt": 13503,
+    "widthFt": 200,
+    "end1": {
+      "designator": "32R",
+      "lat": 47.22570038,
+      "lon": -119.3259964
+    },
+    "end2": {
+      "designator": "14R",
+      "lat": 47.19039917,
+      "lon": -119.3089981
+    }
+  },
+  {
+    "airport": "KMWK",
+    "lengthFt": 2937,
+    "widthFt": 75,
+    "end1": {
+      "designator": "32L",
+      "lat": 47.22399902,
+      "lon": -119.3300018
+    },
+    "end2": {
+      "designator": "AYTK",
+      "lat": 47.21630096,
+      "lon": -119.3259964
+    }
+  },
+  {
+    "airport": "KMWK",
+    "lengthFt": 3307,
+    "widthFt": 75,
+    "end1": {
+      "designator": "18",
+      "lat": 47.20830154,
+      "lon": -119.3300018
+    },
+    "end2": {
+      "designator": "36",
+      "lat": 47.19960022,
+      "lon": -119.3339996
+    }
+  },
+  {
+    "airport": "KNPA",
+    "lengthFt": 4500,
+    "widthFt": 150,
+    "end1": {
+      "designator": "7",
+      "lat": 48.14170074,
+      "lon": -123.4229965
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 48.14089966,
+      "lon": -123.4049988
+    }
+  },
+  {
+    "airport": "KNRB",
+    "lengthFt": 5400,
+    "widthFt": 200,
+    "end1": {
+      "designator": "14",
+      "lat": 48.19499969,
+      "lon": -122.6360016
+    },
+    "end2": {
+      "designator": "32",
+      "lat": 48.18170166,
+      "lon": -122.6279984
+    }
+  },
+  {
+    "airport": "KNVD",
+    "lengthFt": 8000,
+    "widthFt": 200,
+    "end1": {
+      "designator": "7",
+      "lat": 48.35129929,
+      "lon": -122.6729965
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 48.35240173,
+      "lon": -122.6399994
+    }
+  },
+  {
+    "airport": "KNVD",
+    "lengthFt": 8001,
+    "widthFt": 200,
+    "end1": {
+      "designator": "14",
+      "lat": 48.36169815,
+      "lon": -122.663002
+    },
+    "end2": {
+      "designator": "32",
+      "lat": 48.34189987,
+      "lon": -122.6480026
+    }
+  },
+  {
+    "airport": "KOKK",
+    "lengthFt": 3244,
+    "widthFt": 25,
+    "end1": {
+      "designator": "7",
+      "lat": 48.25149918,
+      "lon": -122.6800003
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 48.25149918,
+      "lon": -122.6669998
+    }
+  },
+  {
+    "airport": "KOLS",
+    "lengthFt": 4157,
+    "widthFt": 150,
+    "end1": {
+      "designator": "8",
+      "lat": 46.96860123,
+      "lon": -122.8919983
+    },
+    "end2": {
+      "designator": "26",
+      "lat": 46.96590042,
+      "lon": -122.8759995
+    }
+  },
+  {
+    "airport": "KOLS",
+    "lengthFt": 5501,
+    "widthFt": 150,
+    "end1": {
+      "designator": "17",
+      "lat": 46.97639847,
+      "lon": -122.9020004
+    },
+    "end2": {
+      "designator": "35",
+      "lat": 46.96160126,
+      "lon": -122.9069977
+    }
+  },
+  {
+    "airport": "KOMN",
+    "lengthFt": 4667,
+    "widthFt": 150,
+    "end1": {
+      "designator": "17",
+      "lat": 48.47069931,
+      "lon": -119.5169983
+    },
+    "end2": {
+      "designator": "35",
+      "lat": 48.45809937,
+      "lon": -119.5199966
+    }
+  },
+  {
+    "airport": "KOSA",
+    "lengthFt": 2900,
+    "widthFt": 60,
+    "end1": {
+      "designator": "16",
+      "lat": 48.71229935,
+      "lon": -122.9110031
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 48.70439911,
+      "lon": -122.9110031
+    }
+  },
+  {
+    "airport": "KPAH",
+    "lengthFt": 4514,
+    "widthFt": 75,
+    "end1": {
+      "designator": "11",
+      "lat": 47.9104,
+      "lon": -122.287003
+    },
+    "end2": {
+      "designator": "29",
+      "lat": 47.901798,
+      "lon": -122.274002
+    }
+  },
+  {
+    "airport": "KPAH",
+    "lengthFt": 3000,
+    "widthFt": 75,
+    "end1": {
+      "designator": "34R",
+      "lat": 47.90639877,
+      "lon": -122.2720032
+    },
+    "end2": {
+      "designator": "16R",
+      "lat": 47.89820099,
+      "lon": -122.2720032
+    }
+  },
+  {
+    "airport": "KPAH",
+    "lengthFt": 9010,
+    "widthFt": 150,
+    "end1": {
+      "designator": "34L",
+      "lat": 47.92129898,
+      "lon": -122.2860031
+    },
+    "end2": {
+      "designator": "DAUO",
+      "lat": 47.89659882,
+      "lon": -122.2850037
+    }
+  },
+  {
+    "airport": "KPDX",
+    "lengthFt": 6300,
+    "widthFt": 150,
+    "end1": {
+      "designator": "7",
+      "lat": 45.69530106,
+      "lon": -118.8529968
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 45.69540024,
+      "lon": -118.8290024
+    }
+  },
+  {
+    "airport": "KPDX",
+    "lengthFt": 5581,
+    "widthFt": 100,
+    "end1": {
+      "designator": "11",
+      "lat": 45.69879913,
+      "lon": -118.8539963
+    },
+    "end2": {
+      "designator": "29",
+      "lat": 45.68939972,
+      "lon": -118.836998
+    }
+  },
+  {
+    "airport": "KPDX",
+    "lengthFt": 4341,
+    "widthFt": 60,
+    "end1": {
+      "designator": "16",
+      "lat": 45.7018013,
+      "lon": -118.836998
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 45.68989944,
+      "lon": -118.836998
+    }
+  },
+  {
+    "airport": "KPEA",
+    "lengthFt": 7001,
+    "widthFt": 150,
+    "end1": {
+      "designator": "3",
+      "lat": 45.58240128,
+      "lon": -122.6169968
+    },
+    "end2": {
+      "designator": "21",
+      "lat": 45.59600067,
+      "lon": -122.5970001
+    }
+  },
+  {
+    "airport": "KPEA",
+    "lengthFt": 8000,
+    "widthFt": 150,
+    "end1": {
+      "designator": "28R",
+      "lat": 45.59479904,
+      "lon": -122.5960007
+    },
+    "end2": {
+      "designator": "EDUF",
+      "lat": 45.58409882,
+      "lon": -122.5680008
+    }
+  },
+  {
+    "airport": "KPEA",
+    "lengthFt": 11000,
+    "widthFt": 150,
+    "end1": {
+      "designator": "28L",
+      "lat": 45.5951004,
+      "lon": -122.6210022
+    },
+    "end2": {
+      "designator": "EDAK",
+      "lat": 45.58050156,
+      "lon": -122.5839996
+    }
+  },
+  {
+    "airport": "KPMB",
+    "lengthFt": 3650,
+    "widthFt": 60,
+    "end1": {
+      "designator": "17",
+      "lat": 47.10889816,
+      "lon": -122.2870026
+    },
+    "end2": {
+      "designator": "35",
+      "lat": 47.09889984,
+      "lon": -122.2870026
+    }
+  },
+  {
+    "airport": "KPSF",
+    "lengthFt": 7711,
+    "widthFt": 150,
+    "end1": {
+      "designator": "21R",
+      "lat": 46.25600052,
+      "lon": -119.1330032
+    },
+    "end2": {
+      "designator": "EDCO",
+      "lat": 46.27069855,
+      "lon": -119.1119995
+    }
+  },
+  {
+    "airport": "KPSF",
+    "lengthFt": 4423,
+    "widthFt": 75,
+    "end1": {
+      "designator": "21L",
+      "lat": 46.26070023,
+      "lon": -119.1220016
+    },
+    "end2": {
+      "designator": "EDTD",
+      "lat": 46.26910019,
+      "lon": -119.1090012
+    }
+  },
+  {
+    "airport": "KPSF",
+    "lengthFt": 7703,
+    "widthFt": 150,
+    "end1": {
+      "designator": "12",
+      "lat": 46.27349854,
+      "lon": -119.1279984
+    },
+    "end2": {
+      "designator": "30",
+      "lat": 46.25830078,
+      "lon": -119.1070023
+    }
+  },
+  {
+    "airport": "KPVB",
+    "lengthFt": 7100,
+    "widthFt": 150,
+    "end1": {
+      "designator": "5",
+      "lat": 46.740698,
+      "lon": -117.122002
+    },
+    "end2": {
+      "designator": "23",
+      "lat": 46.747002,
+      "lon": -117.097
+    }
+  },
+  {
+    "airport": "KPXE",
+    "lengthFt": 6000,
+    "widthFt": 150,
+    "end1": {
+      "designator": "2",
+      "lat": 47.48329926,
+      "lon": -122.7710037
+    },
+    "end2": {
+      "designator": "20",
+      "lat": 47.49720001,
+      "lon": -122.7580032
+    }
+  },
+  {
+    "airport": "KPXE",
+    "lengthFt": 5122,
+    "widthFt": 150,
+    "end1": {
+      "designator": "16",
+      "lat": 47.49919891,
+      "lon": -122.7549973
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 47.48500061,
+      "lon": -122.7549973
+    }
+  },
+  {
+    "airport": "KRAC",
+    "lengthFt": 3498,
+    "widthFt": 60,
+    "end1": {
+      "designator": "17",
+      "lat": 48.72299957,
+      "lon": -118.6559982
+    },
+    "end2": {
+      "designator": "35",
+      "lat": 48.71340179,
+      "lon": -118.6569977
+    }
+  },
+  {
+    "airport": "KRME",
+    "lengthFt": 4009,
+    "widthFt": 75,
+    "end1": {
+      "designator": "1",
+      "lat": 46.29999924,
+      "lon": -119.3079987
+    },
+    "end2": {
+      "designator": "19",
+      "lat": 46.30989838,
+      "lon": -119.302002
+    }
+  },
+  {
+    "airport": "KRME",
+    "lengthFt": 3995,
+    "widthFt": 100,
+    "end1": {
+      "designator": "8",
+      "lat": 46.30690002,
+      "lon": -119.310997
+    },
+    "end2": {
+      "designator": "26",
+      "lat": 46.30580139,
+      "lon": -119.2949982
+    }
+  },
+  {
+    "airport": "KRNV",
+    "lengthFt": 5382,
+    "widthFt": 200,
+    "end1": {
+      "designator": "16",
+      "lat": 47.50049973,
+      "lon": -122.2170029
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 47.4858017,
+      "lon": -122.2149963
+    }
+  },
+  {
+    "airport": "KS12",
+    "lengthFt": 3539,
+    "widthFt": 60,
+    "end1": {
+      "designator": "2",
+      "lat": 47.86259842,
+      "lon": -119.947998
+    },
+    "end2": {
+      "designator": "20",
+      "lat": 47.86949921,
+      "lon": -119.9380035
+    }
+  },
+  {
+    "airport": "KS21",
+    "lengthFt": 3491,
+    "widthFt": 40,
+    "end1": {
+      "designator": "7",
+      "lat": 45.83200073,
+      "lon": -120.8519974
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 45.8321991,
+      "lon": -120.8379974
+    }
+  },
+  {
+    "airport": "KS24",
+    "lengthFt": 4059,
+    "widthFt": 45,
+    "end1": {
+      "designator": "15",
+      "lat": 48.71350098,
+      "lon": -117.4150009
+    },
+    "end2": {
+      "designator": "33",
+      "lat": 48.70259857,
+      "lon": -117.4110031
+    }
+  },
+  {
+    "airport": "KS39",
+    "lengthFt": 3288,
+    "widthFt": 40,
+    "end1": {
+      "designator": "15",
+      "lat": 47.34149933,
+      "lon": -122.1050034
+    },
+    "end2": {
+      "designator": "33",
+      "lat": 47.33259964,
+      "lon": -122.1019974
+    }
+  },
+  {
+    "airport": "KS42",
+    "lengthFt": 3450,
+    "widthFt": 60,
+    "end1": {
+      "designator": "7",
+      "lat": 46.21340179,
+      "lon": -119.7979965
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 46.2132988,
+      "lon": -119.7850037
+    }
+  },
+  {
+    "airport": "KS52",
+    "lengthFt": 3400,
+    "widthFt": 75,
+    "end1": {
+      "designator": "16",
+      "lat": 47.33229828,
+      "lon": -122.2269974
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 47.32300186,
+      "lon": -122.2269974
+    }
+  },
+  {
+    "airport": "KS59",
+    "lengthFt": 5048,
+    "widthFt": 75,
+    "end1": {
+      "designator": "13",
+      "lat": 48.43069839,
+      "lon": -120.1520004
+    },
+    "end2": {
+      "designator": "31",
+      "lat": 48.4192009,
+      "lon": -120.1399994
+    }
+  },
+  {
+    "airport": "KS71",
+    "lengthFt": 4206,
+    "widthFt": 45,
+    "end1": {
+      "designator": "7",
+      "lat": 46.79499817,
+      "lon": -119.0879974
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 46.79470062,
+      "lon": -119.0709991
+    }
+  },
+  {
+    "airport": "KS95",
+    "lengthFt": 3209,
+    "widthFt": 60,
+    "end1": {
+      "designator": "7",
+      "lat": 46.8586998,
+      "lon": -117.4199982
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 46.8586998,
+      "lon": -117.4079971
+    }
+  },
+  {
+    "airport": "KS97",
+    "lengthFt": 3819,
+    "widthFt": 60,
+    "end1": {
+      "designator": "5",
+      "lat": 46.04470062,
+      "lon": -118.4240036
+    },
+    "end2": {
+      "designator": "23",
+      "lat": 46.04909897,
+      "lon": -118.4100037
+    }
+  },
+  {
+    "airport": "KSAA",
+    "lengthFt": 4000,
+    "widthFt": 60,
+    "end1": {
+      "designator": "7",
+      "lat": 48.10469818,
+      "lon": -119.7289963
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 48.1053009,
+      "lon": -119.7129974
+    }
+  },
+  {
+    "airport": "KSEE",
+    "lengthFt": 9426,
+    "widthFt": 150,
+    "end1": {
+      "designator": "34C",
+      "lat": 47.46379852,
+      "lon": -122.310997
+    },
+    "end2": {
+      "designator": "KAFJ",
+      "lat": 47.43799973,
+      "lon": -122.310997
+    }
+  },
+  {
+    "airport": "KSEE",
+    "lengthFt": 11900,
+    "widthFt": 150,
+    "end1": {
+      "designator": "34R",
+      "lat": 47.46379852,
+      "lon": -122.3079987
+    },
+    "end2": {
+      "designator": "16R",
+      "lat": 47.43119812,
+      "lon": -122.3079987
+    }
+  },
+  {
+    "airport": "KSEE",
+    "lengthFt": 9426,
+    "widthFt": 150,
+    "end1": {
+      "designator": "34L",
+      "lat": 47.46379852,
+      "lon": -122.3180008
+    },
+    "end2": {
+      "designator": "DAUO",
+      "lat": 47.44049835,
+      "lon": -122.3180008
+    }
+  },
+  {
+    "airport": "4L",
+    "lengthFt": 4500,
+    "widthFt": 150,
+    "end1": {
+      "designator": "4R",
+      "lat": 47.679199,
+      "lon": -117.331001
+    },
+    "end2": {
+      "designator": "EBBL",
+      "lat": 47.686401,
+      "lon": -117.317001
+    }
+  },
+  {
+    "airport": "4L",
+    "lengthFt": 2650,
+    "widthFt": 75,
+    "end1": {
+      "designator": "KSFM",
+      "lat": 47.680401,
+      "lon": -117.325996
+    },
+    "end2": {
+      "designator": "DFOO",
+      "lat": 47.685299,
+      "lon": -117.315002
+    }
+  },
+  {
+    "airport": "KSHR",
+    "lengthFt": 5005,
+    "widthFt": 100,
+    "end1": {
+      "designator": "5",
+      "lat": 47.23099899,
+      "lon": -123.1569977
+    },
+    "end2": {
+      "designator": "23",
+      "lat": 47.23609924,
+      "lon": -123.1380005
+    }
+  },
+  {
+    "airport": "KSKF",
+    "lengthFt": 13901,
+    "widthFt": 200,
+    "end1": {
+      "designator": "5",
+      "lat": 47.60749817,
+      "lon": -117.6819992
+    },
+    "end2": {
+      "designator": "23",
+      "lat": 47.62260056,
+      "lon": -117.6299973
+    }
+  },
+  {
+    "airport": "KSPF",
+    "lengthFt": 5100,
+    "widthFt": 100,
+    "end1": {
+      "designator": "15",
+      "lat": 45.777900700000004,
+      "lon": -122.8639984
+    },
+    "end2": {
+      "designator": "33",
+      "lat": 45.7641983,
+      "lon": -122.8600006
+    }
+  },
+  {
+    "airport": "KTCS",
+    "lengthFt": 10108,
+    "widthFt": 150,
+    "end1": {
+      "designator": "16",
+      "lat": 47.1515007,
+      "lon": -122.4769974
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 47.12379837,
+      "lon": -122.4759979
+    }
+  },
+  {
+    "airport": "KTDW",
+    "lengthFt": 4480,
+    "widthFt": 150,
+    "end1": {
+      "designator": "6",
+      "lat": 46.47539902,
+      "lon": -122.8150024
+    },
+    "end2": {
+      "designator": "24",
+      "lat": 46.47890091,
+      "lon": -122.7979965
+    }
+  },
+  {
+    "airport": "KTIX",
+    "lengthFt": 5002,
+    "widthFt": 150,
+    "end1": {
+      "designator": "17",
+      "lat": 47.27470016,
+      "lon": -122.5770035
+    },
+    "end2": {
+      "designator": "35",
+      "lat": 47.26110077,
+      "lon": -122.5790024
+    }
+  },
+  {
+    "airport": "KTTF",
+    "lengthFt": 5399,
+    "widthFt": 150,
+    "end1": {
+      "designator": "7",
+      "lat": 45.54919815,
+      "lon": -122.4120026
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 45.54949951,
+      "lon": -122.3909988
+    }
+  },
+  {
+    "airport": "KUIN",
+    "lengthFt": 4210,
+    "widthFt": 100,
+    "end1": {
+      "designator": "4",
+      "lat": 47.93360138,
+      "lon": -124.5699997
+    },
+    "end2": {
+      "designator": "22",
+      "lat": 47.9396019,
+      "lon": -124.5550003
+    }
+  },
+  {
+    "airport": "KVVS",
+    "lengthFt": 3275,
+    "widthFt": 60,
+    "end1": {
+      "designator": "8",
+      "lat": 45.62110138,
+      "lon": -122.663002
+    },
+    "end2": {
+      "designator": "26",
+      "lat": 45.61980057,
+      "lon": -122.6500015
+    }
+  },
+  {
+    "airport": "KW03",
+    "lengthFt": 3053,
+    "widthFt": 50,
+    "end1": {
+      "designator": "15",
+      "lat": 48.72890091,
+      "lon": -119.4680023
+    },
+    "end2": {
+      "designator": "33",
+      "lat": 48.72090149,
+      "lon": -119.4639969
+    }
+  },
+  {
+    "airport": "KW31",
+    "lengthFt": 3500,
+    "widthFt": 100,
+    "end1": {
+      "designator": "27R",
+      "lat": 48.09999847,
+      "lon": -123.1940002
+    },
+    "end2": {
+      "designator": "09R",
+      "lat": 48.09669876,
+      "lon": -123.1800003
+    }
+  },
+  {
+    "airport": "KW31",
+    "lengthFt": 3500,
+    "widthFt": 40,
+    "end1": {
+      "designator": "27L",
+      "lat": 48.09930038,
+      "lon": -123.1940002
+    },
+    "end2": {
+      "designator": "DAAB",
+      "lat": 48.09700012,
+      "lon": -123.1800003
+    }
+  },
+  {
+    "airport": "KYKN",
+    "lengthFt": 3835,
+    "widthFt": 150,
+    "end1": {
+      "designator": "4",
+      "lat": 46.56389999,
+      "lon": -120.5479965
+    },
+    "end2": {
+      "designator": "22",
+      "lat": 46.56919861,
+      "lon": -120.5350037
+    }
+  },
+  {
+    "airport": "KYKN",
+    "lengthFt": 7603,
+    "widthFt": 150,
+    "end1": {
+      "designator": "9",
+      "lat": 46.57260132,
+      "lon": -120.5599976
+    },
+    "end2": {
+      "designator": "27",
+      "lat": 46.56539917,
+      "lon": -120.5309982
+    }
+  },
+  {
+    "airport": "KZ98",
+    "lengthFt": 3500,
+    "widthFt": 60,
+    "end1": {
+      "designator": "16",
+      "lat": 47.02640152,
+      "lon": -122.4459991
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 47.01689911,
+      "lon": -122.4459991
+    }
+  },
+  {
+    "airport": "S35",
+    "lengthFt": 2904,
+    "widthFt": 60,
+    "end1": {
+      "designator": "16",
+      "lat": 48.48789978,
+      "lon": -122.9380035
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 48.47990036,
+      "lon": -122.9380035
+    }
+  },
+  {
+    "airport": "S43",
+    "lengthFt": 2533,
+    "widthFt": 36,
+    "end1": {
+      "designator": "4",
+      "lat": 48.36009979,
+      "lon": -119.5719986
+    },
+    "end2": {
+      "designator": "22",
+      "lat": 48.36370087,
+      "lon": -119.5630035
+    }
+  },
+  {
+    "airport": "S51",
+    "lengthFt": 2671,
+    "widthFt": 36,
+    "end1": {
+      "designator": "33R",
+      "lat": 47.90829849,
+      "lon": -122.1039963
+    },
+    "end2": {
+      "designator": "15R",
+      "lat": 47.90129852,
+      "lon": -122.1009979
+    }
+  },
+  {
+    "airport": "S51",
+    "lengthFt": 2430,
+    "widthFt": 100,
+    "end1": {
+      "designator": "33L",
+      "lat": 47.90819931,
+      "lon": -122.1050034
+    },
+    "end2": {
+      "designator": "CYZD",
+      "lat": 47.90169907,
+      "lon": -122.1019974
+    }
+  },
+  {
+    "airport": "SA-0008",
+    "lengthFt": 2552,
+    "widthFt": 40,
+    "end1": {
+      "designator": "7",
+      "lat": 47.19409943,
+      "lon": -120.8889999
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 47.19440079,
+      "lon": -120.8779984
+    }
+  },
+  {
+    "airport": "US-0219",
+    "lengthFt": 4025,
+    "widthFt": 75,
+    "end1": {
+      "designator": "12",
+      "lat": 46.71689987,
+      "lon": -120.3320007
+    },
+    "end2": {
+      "designator": "30",
+      "lat": 46.70920181,
+      "lon": -120.3209991
+    }
+  },
+  {
+    "airport": "US-0783",
+    "lengthFt": 2116,
+    "widthFt": 145,
+    "end1": {
+      "designator": "4",
+      "lat": 46.02312851,
+      "lon": -121.278389
+    },
+    "end2": {
+      "designator": "22",
+      "lat": 46.02647018,
+      "lon": -121.2715836
+    }
+  },
+  {
+    "airport": "US-10308",
+    "lengthFt": 2280,
+    "widthFt": 30,
+    "end1": {
+      "designator": "7",
+      "lat": 46.99039841,
+      "lon": -123.4339981
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 46.99069977,
+      "lon": -123.4250031
+    }
+  },
+  {
+    "airport": "US-11548",
+    "lengthFt": 4008,
+    "widthFt": 150,
+    "end1": {
+      "designator": "2",
+      "lat": 46.21469879,
+      "lon": -119.2160034
+    },
+    "end2": {
+      "designator": "20",
+      "lat": 46.22249985,
+      "lon": -119.2040024
+    }
+  },
+  {
+    "airport": "US-12185",
+    "lengthFt": 2724,
+    "widthFt": 20,
+    "end1": {
+      "designator": "16",
+      "lat": 47.09059906,
+      "lon": -122.4309998
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 47.08309937,
+      "lon": -122.4319992
+    }
+  },
+  {
+    "airport": "US-12436",
+    "lengthFt": 3600,
+    "widthFt": 30,
+    "end1": {
+      "designator": "7",
+      "lat": 45.95610046,
+      "lon": -119.6269989
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 45.95640182,
+      "lon": -119.612999
+    }
+  },
+  {
+    "airport": "US-5187",
+    "lengthFt": 2756,
+    "widthFt": 40,
+    "end1": {
+      "designator": "2",
+      "lat": 45.74943161,
+      "lon": -119.3860016
+    },
+    "end2": {
+      "designator": "22",
+      "lat": 45.75605774,
+      "lon": -119.380806
+    }
+  },
+  {
+    "airport": "US-6891",
+    "lengthFt": 2535,
+    "widthFt": 75,
+    "end1": {
+      "designator": "9",
+      "lat": 46.296403,
+      "lon": -116.959219
+    },
+    "end2": {
+      "designator": "27",
+      "lat": 46.296261,
+      "lon": -116.949194
+    }
+  },
+  {
+    "airport": "W16",
+    "lengthFt": 2470,
+    "widthFt": 25,
+    "end1": {
+      "designator": "16",
+      "lat": 48.02099991,
+      "lon": -122.4380035
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 48.0143013,
+      "lon": -122.4369965
+    }
+  },
+  {
+    "airport": "W19",
+    "lengthFt": 2087,
+    "widthFt": 34,
+    "end1": {
+      "designator": "7",
+      "lat": 47.87149811,
+      "lon": -121.9990005
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 47.87129974,
+      "lon": -121.9909973
+    }
+  },
+  {
+    "airport": "W23",
+    "lengthFt": 2513,
+    "widthFt": 50,
+    "end1": {
+      "designator": "16",
+      "lat": 47.14550018,
+      "lon": -119.237999
+    },
+    "end2": {
+      "designator": "34",
+      "lat": 47.1385994,
+      "lon": -119.237999
+    }
+  },
+  {
+    "airport": "W29",
+    "lengthFt": 1953,
+    "widthFt": 25,
+    "end1": {
+      "designator": "14",
+      "lat": 45.90129852,
+      "lon": -122.7389984
+    },
+    "end2": {
+      "designator": "32",
+      "lat": 45.89640045,
+      "lon": -122.7360001
+    }
+  },
+  {
+    "airport": "W56",
+    "lengthFt": 2565,
+    "widthFt": 50,
+    "end1": {
+      "designator": "15",
+      "lat": 45.83089828,
+      "lon": -122.5790024
+    },
+    "end2": {
+      "designator": "33",
+      "lat": 45.82410049,
+      "lon": -122.5759964
+    }
+  },
+  {
+    "airport": "W75",
+    "lengthFt": 2434,
+    "widthFt": 50,
+    "end1": {
+      "designator": "7",
+      "lat": 45.68730164,
+      "lon": -122.5270004
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 45.68730164,
+      "lon": -122.5169983
+    }
+  },
+  {
+    "airport": "WA14",
+    "lengthFt": 4300,
+    "widthFt": 35,
+    "end1": {
+      "designator": "6",
+      "lat": 48.61109924,
+      "lon": -123.1470032
+    },
+    "end2": {
+      "designator": "24",
+      "lat": 48.61330032,
+      "lon": -123.1299973
+    }
+  },
+  {
+    "airport": "WA19",
+    "lengthFt": 3070,
+    "widthFt": 50,
+    "end1": {
+      "designator": "7",
+      "lat": 46.66249847,
+      "lon": -118.8389969
+    },
+    "end2": {
+      "designator": "25",
+      "lat": 46.66249847,
+      "lon": -118.8270035
+    }
+  },
+  {
+    "airport": "WA44",
+    "lengthFt": 3400,
+    "widthFt": 50,
+    "end1": {
+      "designator": "1",
+      "lat": 46.39279938,
+      "lon": -119.0240021
+    },
+    "end2": {
+      "designator": "19",
+      "lat": 46.40110016,
+      "lon": -119.0179977
+    }
+  },
+  {
+    "airport": "WN54",
+    "lengthFt": 3800,
+    "widthFt": 30,
+    "end1": {
+      "designator": "15",
+      "lat": 48.11560059,
+      "lon": -122.064003
+    },
+    "end2": {
+      "designator": "33",
+      "lat": 48.1053009,
+      "lon": -122.060997
+    }
+  },
+  {
+    "airport": "WPAS",
+    "lengthFt": 3800,
+    "widthFt": 60,
+    "end1": {
+      "designator": "1",
+      "lat": 47.7303009,
+      "lon": -117.0749969
+    },
+    "end2": {
+      "designator": "19",
+      "lat": 47.73949814,
+      "lon": -117.0680008
+    }
+  }
+]
