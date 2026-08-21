@@ -1,5 +1,13 @@
 # FAA Part 77 Obstacle Analysis Application
 
+> **Note (August 2026):** This app has been converted from the Replit-hosted
+> Express+React app described below into a fully static, client-side site
+> (deployed free on GitHub Pages — see `README.md`). All analysis logic
+> described here is unchanged; it was ported as-is from `server/services/*`
+> into `client/src/lib/*` and now runs in the browser instead of on a
+> server. Sections below referring to "Backend Architecture" / Express
+> routes describe the original implementation this was ported from.
+
 ## Overview
 
 This is a specialized aviation compliance tool that analyzes obstacle data against FAA Part 77 imaginary surfaces for Washington State airports. The application helps determine if structures or obstacles penetrate protected airspace around airports by calculating distances to nearest airports and checking against various Part 77 surface types (Approach, Horizontal, Transitional, etc.).

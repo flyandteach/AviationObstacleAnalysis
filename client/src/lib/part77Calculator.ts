@@ -1,4 +1,4 @@
-import type { Airport, ObstacleInput, Part77Result, SurfaceType } from '@shared/schema';
+import type { Airport, ObstacleInput, Part77Result, SurfaceType } from './schema';
 import {
   getBestApproachTypeForAirport,
   getRunwayApproachType,

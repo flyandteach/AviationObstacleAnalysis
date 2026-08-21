@@ -1,5 +1,5 @@
-import type { Airport, ObstacleInput } from '@shared/schema';
-import { getWashingtonAirports } from './airportData';
+import type { Airport, ObstacleInput } from "./schema";
+import { getWashingtonAirports } from "./airportData";
 
 /**
  * Calculate distance between two geographic coordinates using Haversine formula
@@ -9,22 +9,22 @@ export function haversineDistance(
   lat1: number,
   lon1: number,
   lat2: number,
-  lon2: number
+  lon2: number,
 ): number {
   const R = 3440.065; // Earth's radius in nautical miles
   const dLat = toRadians(lat2 - lat1);
   const dLon = toRadians(lon2 - lon1);
-  
+
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(toRadians(lat1)) *
-    Math.cos(toRadians(lat2)) *
-    Math.sin(dLon / 2) *
-    Math.sin(dLon / 2);
-  
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = R * c;
-  
+
   return distance;
 }
 
@@ -37,10 +37,10 @@ function toRadians(degrees: number): number {
  * Returns the airport and distance in nautical miles
  */
 export function findNearestAirport(
-  obstacle: ObstacleInput
+  obstacle: ObstacleInput,
 ): { airport: Airport; distance: number } | null {
   const airports = getWashingtonAirports();
-  
+
   if (airports.length === 0) {
     return null;
   }
@@ -50,7 +50,7 @@ export function findNearestAirport(
     obstacle.latitude,
     obstacle.longitude,
     airports[0].latitude_deg,
-    airports[0].longitude_deg
+    airports[0].longitude_deg,
   );
 
   for (let i = 1; i < airports.length; i++) {
@@ -59,7 +59,7 @@ export function findNearestAirport(
       obstacle.latitude,
       obstacle.longitude,
       airport.latitude_deg,
-      airport.longitude_deg
+      airport.longitude_deg,
     );
 
     if (distance < minDistance) {
@@ -80,24 +80,24 @@ export function findNearestAirport(
  */
 export function findAirportsWithinRadius(
   obstacle: ObstacleInput,
-  radiusNM: number
+  radiusNM: number,
 ): Array<{ airport: Airport; distance: number }> {
   const airports = getWashingtonAirports();
-  
+
   const results = airports
-    .map(airport => ({
+    .map((airport) => ({
       airport,
       distance: haversineDistance(
         obstacle.latitude,
         obstacle.longitude,
         airport.latitude_deg,
-        airport.longitude_deg
+        airport.longitude_deg,
       ),
     }))
-    .filter(result => result.distance <= radiusNM)
+    .filter((result) => result.distance <= radiusNM)
     .sort((a, b) => a.distance - b.distance);
 
-  return results.map(r => ({
+  return results.map((r) => ({
     ...r,
     distance: parseFloat(r.distance.toFixed(2)),
   }));
