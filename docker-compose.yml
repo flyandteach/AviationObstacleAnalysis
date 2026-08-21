@@ -1,0 +1,11 @@
+services:
+  aviation-obstacle-analysis:
+    build: .
+    container_name: aviation-obstacle-analysis
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 5000
