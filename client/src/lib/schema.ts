@@ -1,21 +1,4 @@
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-});
-
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-});
-
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
 
 // Airport data schema (from CSV)
 export const airportSchema = z.object({
@@ -34,19 +17,6 @@ export const airportSchema = z.object({
 
 export type Airport = z.infer<typeof airportSchema>;
 
-// Runway data schema (from CSV)
-export const runwaySchema = z.object({
-  airport_id: z.string(),
-  designator: z.string(),
-  length: z.number(),
-  width: z.number(),
-  surface: z.string().nullable(),
-  us_low: z.boolean().optional(),  // Indicates instrument approach on US Low charts
-  us_high: z.boolean().optional(), // Indicates instrument approach on US High charts
-});
-
-export type Runway = z.infer<typeof runwaySchema>;
-
 // Parsed obstacle from text input
 export const obstacleInputSchema = z.object({
   id: z.string(),
@@ -62,9 +32,9 @@ export const obstacleInputSchema = z.object({
 export type ObstacleInput = z.infer<typeof obstacleInputSchema>;
 
 // Part 77 Surface Types
-export type SurfaceType = 
+export type SurfaceType =
   | "Primary Surface"
-  | "Approach Surface" 
+  | "Approach Surface"
   | "Transitional Surface"
   | "Horizontal Surface"
   | "Conical Surface";
@@ -86,9 +56,9 @@ export const part77ResultSchema = z.object({
   latitude: z.number(),
   longitude: z.number(),
   // Surface geometry for map visualization
-  horizontalRadiusFt: z.number(),   // radius of horizontal surface in feet
+  horizontalRadiusFt: z.number(), // radius of horizontal surface in feet
   conicalOuterRadiusFt: z.number(), // outer radius of conical surface in feet
-  approachType: z.string(),         // UTILITY | VISUAL | NONPREC | PREC
+  approachType: z.string(), // UTILITY | VISUAL | NONPREC | PREC
 });
 
 export type Part77Result = z.infer<typeof part77ResultSchema>;

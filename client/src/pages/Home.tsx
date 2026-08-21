@@ -6,235 +6,59 @@ import ResultsTable, { ObstacleResult } from "@/components/ResultsTable";
 import ObstacleMap, { MapObstacle } from "@/components/ObstacleMap";
 import { Button } from "@/components/ui/button";
 import { Download, Info, Loader2 } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
+import { analyzeObstacles, ObstacleAnalysisError } from "@/lib/obstacleAnalysis";
 import { useToast } from "@/hooks/use-toast";
-
-// todo: remove mock functionality
-// Obstacle coordinates offset from airports by realistic distances
-const mockResults: ObstacleResult[] = [
-  {
-    id: "1",
-    obstacleId: "OBS-2024-001",
-    nearestAirport: "SEA",
-    airportName: "Seattle-Tacoma Intl",
-    distance: 0.45,
-    obstacleHeight: 215,
-    surfaceType: "Approach Surface",
-    status: "penetration",
-    latitude: 47.4434, // Offset from SEA (47.4502, -122.3088)
-    longitude: -122.3156
-  },
-  {
-    id: "2",
-    obstacleId: "OBS-2024-002",
-    nearestAirport: "GEG",
-    airportName: "Spokane International",
-    distance: 1.32,
-    obstacleHeight: 178,
-    surfaceType: "Horizontal Surface",
-    status: "warning",
-    latitude: 47.6385, // Offset from GEG (47.6199, -117.5339)
-    longitude: -117.5512
-  },
-  {
-    id: "3",
-    obstacleId: "OBS-2024-003",
-    nearestAirport: "BFI",
-    airportName: "Boeing Field",
-    distance: 0.89,
-    obstacleHeight: 95,
-    surfaceType: "Transitional Surface",
-    status: "clear",
-    latitude: 47.5389, // Offset from BFI (47.5300, -122.3019)
-    longitude: -122.3145
-  },
-  {
-    id: "4",
-    obstacleId: "OBS-2024-004",
-    nearestAirport: "PSC",
-    airportName: "Tri-Cities Airport",
-    distance: 0.67,
-    obstacleHeight: 142,
-    surfaceType: "Transitional Surface",
-    status: "warning",
-    latitude: 46.2725, // Offset from PSC (46.2647, -119.1190)
-    longitude: -119.1278
-  },
-  {
-    id: "5",
-    obstacleId: "OBS-2024-005",
-    nearestAirport: "OLM",
-    airportName: "Olympia Regional",
-    distance: 1.56,
-    obstacleHeight: 186,
-    surfaceType: "Horizontal Surface",
-    status: "penetration",
-    latitude: 46.9889, // Offset from OLM (46.9694, -122.9026)
-    longitude: -122.9234
-  },
-  {
-    id: "6",
-    obstacleId: "OBS-2024-006",
-    nearestAirport: "ALW",
-    airportName: "Walla Walla Regional",
-    distance: 0.23,
-    obstacleHeight: 68,
-    surfaceType: "Primary Surface",
-    status: "clear",
-    latitude: 46.0978, // Offset from ALW (46.0949, -118.2880)
-    longitude: -118.2912
-  },
-  {
-    id: "7",
-    obstacleId: "OBS-2024-007",
-    nearestAirport: "ELN",
-    airportName: "Bowers Field",
-    distance: 0.78,
-    obstacleHeight: 125,
-    surfaceType: "Approach Surface",
-    status: "clear",
-    latitude: 46.6834, // Offset from ELN (46.6743, -120.5309)
-    longitude: -120.5423
-  }
-];
-
-// Convert DMS (Degrees Minutes Seconds) to decimal degrees
-function dmsToDecimal(dmsString: string): number | null {
-  const match = dmsString.match(/(\d+)°\s*(\d+)'\s*([\d.]+)"\s*([NSEW])/);
-  if (!match) return null;
-  
-  const degrees = parseFloat(match[1]);
-  const minutes = parseFloat(match[2]);
-  const seconds = parseFloat(match[3]);
-  const direction = match[4];
-  
-  let decimal = degrees + minutes / 60 + seconds / 3600;
-  
-  if (direction === 'S' || direction === 'W') {
-    decimal = -decimal;
-  }
-  
-  return decimal;
-}
-
-// Parse obstacle data from pasted text
-function parseObstacleData(text: string): ObstacleResult[] {
-  const lines = text.split('\n').filter(line => line.trim());
-  const results: ObstacleResult[] = [];
-  
-  lines.forEach((line, index) => {
-    // Skip if contains "Determined" (case insensitive)
-    if (line.toLowerCase().includes('determined')) {
-      return;
-    }
-    
-    // Extract coordinates using regex for DMS format
-    const latMatch = line.match(/(\d+)°\s*(\d+)'\s*([\d.]+)"\s*([NS])/);
-    const lonMatch = line.match(/(\d+)°\s*(\d+)'\s*([\d.]+)"\s*([EW])/);
-    
-    if (latMatch && lonMatch) {
-      const latitude = dmsToDecimal(latMatch[0]);
-      const longitude = dmsToDecimal(lonMatch[0]);
-      
-      if (latitude !== null && longitude !== null) {
-        // Extract obstacle ID (first part before space)
-        const obstacleId = line.split(/\s+/)[0] || `OBS-${index + 1}`;
-        
-        // Mock Part 77 analysis (will be replaced with real calculations later)
-        const mockStatuses: ("penetration" | "warning" | "clear")[] = ["penetration", "warning", "clear"];
-        const mockAirports = [
-          { code: "SEA", name: "Seattle-Tacoma Intl" },
-          { code: "GEG", name: "Spokane International" },
-          { code: "BFI", name: "Boeing Field" },
-          { code: "PSC", name: "Tri-Cities Airport" },
-          { code: "OLM", name: "Olympia Regional" },
-          { code: "ALW", name: "Walla Walla Regional" },
-          { code: "ELN", name: "Bowers Field" }
-        ];
-        
-        const randomAirport = mockAirports[Math.floor(Math.random() * mockAirports.length)];
-        const randomDistance = Math.random() * 2;
-        const randomHeight = Math.floor(Math.random() * 300) + 50;
-        const randomStatus = mockStatuses[Math.floor(Math.random() * mockStatuses.length)];
-        const surfaces = ["Approach Surface", "Primary Surface", "Horizontal Surface", "Transitional Surface", "Conical Surface"];
-        const randomSurface = surfaces[Math.floor(Math.random() * surfaces.length)];
-        
-        results.push({
-          id: `${index + 1}`,
-          obstacleId,
-          nearestAirport: randomAirport.code,
-          airportName: randomAirport.name,
-          distance: parseFloat(randomDistance.toFixed(2)),
-          obstacleHeight: randomHeight,
-          surfaceType: randomSurface,
-          status: randomStatus,
-          latitude,
-          longitude
-        });
-      }
-    }
-  });
-  
-  return results;
-}
 
 export default function Home() {
   const [showResults, setShowResults] = useState(false);
-  const [results, setResults] = useState<ObstacleResult[]>(mockResults);
+  const [results, setResults] = useState<ObstacleResult[]>([]);
+  const [airportsChecked, setAirportsChecked] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleTextSubmit = async (text: string) => {
     setIsLoading(true);
-    
-    try {
-      console.log('Submitting obstacle data to API...');
-      
-      // Call backend API
-      const res = await apiRequest('POST', '/api/analyze-obstacles', { text });
-      const response: {
-        success: boolean;
-        count: number;
-        results: ObstacleResult[];
-      } = await res.json();
 
-      if (response.success && response.results.length > 0) {
-        console.log(`Analyzed ${response.count} obstacles`);
-        setResults(response.results);
-        setShowResults(true);
-        
-        toast({
-          title: "Analysis Complete",
-          description: `Successfully analyzed ${response.count} obstacles (excluded "determined" status)`,
-        });
-      } else {
-        throw new Error('No obstacles found');
-      }
+    try {
+      const analyzed = analyzeObstacles(text);
+
+      const uniqueAirports = new Set(analyzed.map((r) => r.nearestAirport));
+      setResults(analyzed);
+      setAirportsChecked(uniqueAirports.size);
+      setShowResults(true);
+
+      toast({
+        title: "Analysis Complete",
+        description: `Successfully analyzed ${analyzed.length} obstacles (excluded "determined" status)`,
+      });
     } catch (error) {
-      console.error('Error analyzing obstacles:', error);
-      
+      console.error("Error analyzing obstacles:", error);
+
+      const message =
+        error instanceof ObstacleAnalysisError
+          ? error.message
+          : error instanceof Error
+            ? error.message
+            : "Failed to analyze obstacles. Please check your input format.";
+
       toast({
         title: "Analysis Failed",
-        description: error instanceof Error ? error.message : "Failed to analyze obstacles. Please check your input format.",
+        description: message,
         variant: "destructive",
       });
-      
-      // Fall back to mock data for demo purposes
-      setResults(mockResults);
-      setShowResults(true);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleExport = () => {
-    console.log('Exporting results');
+    console.log("Exporting results");
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Info Banner */}
         <div className="mb-8 p-4 bg-primary/10 border border-primary/20 rounded-md">
@@ -281,7 +105,7 @@ export default function Home() {
               </div>
               <SummaryCards
                 totalObstacles={results.length}
-                airportsChecked={6}
+                airportsChecked={airportsChecked}
                 penetrations={results.filter(r => r.status === "penetration").length}
                 warnings={results.filter(r => r.status === "warning").length}
               />
@@ -309,7 +133,7 @@ export default function Home() {
               Ready to Analyze
             </h3>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              Paste your obstacle data in the text area above to begin the Part 77 surface penetration analysis. 
+              Paste your obstacle data in the text area above to begin the Part 77 surface penetration analysis.
               Supports CSV format or tab-delimited text.
             </p>
           </div>
