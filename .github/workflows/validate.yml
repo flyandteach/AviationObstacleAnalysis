@@ -1,0 +1,22 @@
+name: Validate self-hosted app
+
+on:
+  pull_request:
+  push:
+    branches:
+      - self-hosted-app
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+      - name: Build Docker image
+        run: docker build -t aviation-obstacle-analysis:test .
