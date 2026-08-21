@@ -1,0 +1,8 @@
+node_modules
+dist
+.git
+.gitignore
+.replit
+*.log
+attached_assets/*.avi
+attached_assets/*.pdf
