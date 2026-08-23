@@ -26,7 +26,7 @@ export default function TextInput({ onTextSubmit }: TextInputProps) {
         <Textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder={`Paste obstacle data here. Supported coordinate formats include decimal degrees and DMS.\n\nExamples:\nObstacleID,Latitude,Longitude,Height,Type\nOBS-001,47.4502,-122.3088,485,Tower\nOBS-002 47° 27' 00.72\" N 122° 18' 31.68\" W 650 120\nOBS-003 47-27-00.72N 122-18-31.68W 650 120`}
+          placeholder={`Paste FAA OE/AAA search results directly here, including the ASN, Status, Structure, Latitude, Longitude, Elevation and AGL fields.\n\nYou can also paste row-based data such as:\nOBS-001,47.4502,-122.3088,485,Tower\nOBS-002 47° 27' 00.72\" N 122° 18' 31.68\" W 650 120`}
           className="min-h-[300px] font-mono text-sm resize-y"
           data-testid="input-obstacle-data"
         />
@@ -44,8 +44,8 @@ export default function TextInput({ onTextSubmit }: TextInputProps) {
       </div>
 
       <div className="text-xs text-muted-foreground">
-        Accepted coordinates: signed decimal degrees (47.4502, -122.3088), DMS with symbols,
-        decimal degrees with N/S/E/W, and FAA-style hyphenated DMS. Header rows are ignored.
+        Direct FAA OE/AAA copied results are supported. Determined cases are skipped; pending, evaluating,
+        studying, and other active cases are screened. For FAA records, top elevation is calculated as Site Elevation + AGL.
       </div>
 
       <div className="flex items-center justify-between gap-4">
