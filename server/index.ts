@@ -3,12 +3,14 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+const APP_BUILD = "oeaaa-clipboard-v3";
+
 app.disable("x-powered-by");
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: false, limit: "5mb" }));
 
 app.get("/healthz", (_req, res) => {
-  res.status(200).json({ status: "ok" });
+  res.status(200).json({ status: "ok", build: APP_BUILD });
 });
 
 app.use((req, res, next) => {
@@ -61,6 +63,6 @@ app.use((req, res, next) => {
   const host = process.env.HOST || "0.0.0.0";
 
   server.listen(port, host, () => {
-    log(`serving on http://${host}:${port}`);
+    log(`serving on http://${host}:${port} (${APP_BUILD})`);
   });
 })();
