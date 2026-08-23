@@ -176,8 +176,15 @@ const tabPaste = [
 const tab = parseObstacleText(tabPaste);
 assert.equal(tab.sourceFormat, "oeaaa-table");
 assert.equal(tab.obstacles.length, 1);
-assert.equal(tab.obstacles[0].obstacleId, "2026-ANM-456-OE");
 assert.equal(tab.obstacles[0].heightMSL, 520);
+
+const collapsedPaste = "ASN Status Structure Duration City State Latitude Longitude Elevation AGL 2026-ANM-456-OE Pending Parking Permanent Silverdale WA 47° 39' 08.10\" N 122° 44' 03.91\" W 503 17";
+const collapsed = parseObstacleText(collapsedPaste);
+assert.equal(collapsed.sourceFormat, "oeaaa-table");
+assert.equal(collapsed.obstacles.length, 1);
+assert.equal(collapsed.obstacles[0].obstacleId, "2026-ANM-456-OE");
+assert.equal(collapsed.obstacles[0].heightMSL, 520);
+assert.equal(collapsed.obstacles[0].heightAGL, 17);
 
 const bad = parseObstacleText("this is not obstacle data");
 assert.equal(bad.obstacles.length, 0);
