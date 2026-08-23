@@ -2,8 +2,26 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    const raw = (await res.text()) || res.statusText;
+    let message = raw;
+
+    try {
+      const payload = JSON.parse(raw) as {
+        error?: string;
+        details?: string;
+        unparsedLines?: Array<{ lineNumber: number; text: string }>;
+      };
+      const parts = [payload.error, payload.details].filter(Boolean);
+      if (payload.unparsedLines?.length) {
+        const first = payload.unparsedLines[0];
+        parts.push(`First unrecognized line ${first.lineNumber}: ${first.text}`);
+      }
+      if (parts.length) message = parts.join(" — ");
+    } catch {
+      // Keep the raw response when it is not JSON.
+    }
+
+    throw new Error(`${res.status}: ${message}`);
   }
 }
 
