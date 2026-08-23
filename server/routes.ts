@@ -1,54 +1,244 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { obstacleInputSchema, part77ResultSchema, type Part77Result } from "@shared/schema";
+import { part77ResultSchema, type ObstacleInput, type Part77Result } from "@shared/schema";
 import { findNearestAirport, findAirportsWithinRadius } from "./services/distanceCalculator";
 import { createPart77Result } from "./services/part77Calculator";
 import { z } from "zod";
 
-// Parse DMS (Degrees Minutes Seconds) to decimal degrees
-function dmsToDecimal(dmsString: string): number | null {
-  const match = dmsString.match(/(\d+)°\s*(\d+)'\s*([\d.]+)"\s*([NSEW])/);
-  if (!match) return null;
-  
-  const degrees = parseFloat(match[1]);
-  const minutes = parseFloat(match[2]);
-  const seconds = parseFloat(match[3]);
-  const direction = match[4];
-  
+interface CoordinateMatch {
+  value: number;
+  start: number;
+  end: number;
+}
+
+interface ParsedCoordinates {
+  latitude: number;
+  longitude: number;
+  endIndex: number;
+  format: "dms" | "decimal-hemisphere" | "decimal";
+}
+
+function normalizeCoordinateText(value: string): string {
+  return value
+    .replace(/\u00a0/g, " ")
+    .replace(/[º]/g, "°")
+    .replace(/[′’`]/g, "'")
+    .replace(/[″”]/g, '"');
+}
+
+function dmsPartsToDecimal(
+  degrees: number,
+  minutes: number,
+  seconds: number,
+  direction: string,
+): number | null {
+  if (!Number.isFinite(degrees) || !Number.isFinite(minutes) || !Number.isFinite(seconds)) return null;
+  if (minutes < 0 || minutes >= 60 || seconds < 0 || seconds >= 60) return null;
+
+  const maxDegrees = /[NS]/i.test(direction) ? 90 : 180;
+  if (degrees < 0 || degrees > maxDegrees) return null;
+
   let decimal = degrees + minutes / 60 + seconds / 3600;
-  
-  if (direction === 'S' || direction === 'W') {
-    decimal = -decimal;
-  }
-  
+  if (/[SW]/i.test(direction)) decimal = -decimal;
   return decimal;
 }
 
-/**
- * Status severity rank — higher is worse.
- */
+function findDmsCoordinate(line: string, latitude: boolean): CoordinateMatch | null {
+  const hemisphere = latitude ? "NS" : "EW";
+  const patterns = [
+    // 47° 27' 00.72" N, 47º27'00.72N, 47-27-00.72N
+    new RegExp(`(\\d{1,3})\\s*(?:°|-)\\s*(\\d{1,2})\\s*(?:'|-)\\s*(\\d{1,2}(?:\\.\\d+)?)\\s*(?:\")?\\s*([${hemisphere}])`, "i"),
+    // 47 27 00.72 N
+    new RegExp(`(\\d{1,3})\\s+(\\d{1,2})\\s+(\\d{1,2}(?:\\.\\d+)?)\\s*([${hemisphere}])`, "i"),
+  ];
+
+  for (const pattern of patterns) {
+    const match = line.match(pattern);
+    if (!match || match.index === undefined) continue;
+
+    const value = dmsPartsToDecimal(
+      Number(match[1]),
+      Number(match[2]),
+      Number(match[3]),
+      match[4],
+    );
+    if (value === null) continue;
+
+    return {
+      value,
+      start: match.index,
+      end: match.index + match[0].length,
+    };
+  }
+
+  return null;
+}
+
+function findDecimalHemisphereCoordinate(line: string, latitude: boolean): CoordinateMatch | null {
+  const hemisphere = latitude ? "NS" : "EW";
+  const pattern = new RegExp(`(-?\\d{1,3}(?:\\.\\d+)?)\\s*°?\\s*([${hemisphere}])`, "i");
+  const match = line.match(pattern);
+  if (!match || match.index === undefined) return null;
+
+  let value = Math.abs(Number(match[1]));
+  if (!Number.isFinite(value)) return null;
+
+  const max = latitude ? 90 : 180;
+  if (value > max) return null;
+  if (/[SW]/i.test(match[2])) value = -value;
+
+  return {
+    value,
+    start: match.index,
+    end: match.index + match[0].length,
+  };
+}
+
+function parseCoordinates(rawLine: string): ParsedCoordinates | null {
+  const line = normalizeCoordinateText(rawLine);
+
+  const latDms = findDmsCoordinate(line, true);
+  const lonDms = findDmsCoordinate(line, false);
+  if (latDms && lonDms) {
+    return {
+      latitude: latDms.value,
+      longitude: lonDms.value,
+      endIndex: Math.max(latDms.end, lonDms.end),
+      format: "dms",
+    };
+  }
+
+  // Decimal degrees with hemisphere, e.g. 47.4502 N, 122.3088 W
+  const latHemisphere = findDecimalHemisphereCoordinate(line, true);
+  const lonHemisphere = findDecimalHemisphereCoordinate(line, false);
+  if (latHemisphere && lonHemisphere) {
+    return {
+      latitude: latHemisphere.value,
+      longitude: lonHemisphere.value,
+      endIndex: Math.max(latHemisphere.end, lonHemisphere.end),
+      format: "decimal-hemisphere",
+    };
+  }
+
+  // Signed decimal-degree pair, comma/tab/semicolon/pipe/space delimited.
+  // Examples: 47.4502,-122.3088 or 47.4502\t-122.3088
+  const decimalPair = /(-?\d{1,2}(?:\.\d+))\s*[,;\t| ]+\s*(-?\d{1,3}(?:\.\d+))/g;
+  let match: RegExpExecArray | null;
+  while ((match = decimalPair.exec(line)) !== null) {
+    const latitude = Number(match[1]);
+    const longitude = Number(match[2]);
+    if (
+      Number.isFinite(latitude) &&
+      Number.isFinite(longitude) &&
+      latitude >= -90 && latitude <= 90 &&
+      longitude >= -180 && longitude <= 180
+    ) {
+      return {
+        latitude,
+        longitude,
+        endIndex: match.index + match[0].length,
+        format: "decimal",
+      };
+    }
+  }
+
+  return null;
+}
+
+function extractObstacleId(line: string, index: number): string {
+  const firstField = line.trim().split(/[,;\t|\s]+/)[0]?.trim();
+  return firstField || `OBS-${index + 1}`;
+}
+
+function extractHeights(line: string, coordinateEndIndex: number): { heightMSL: number; heightAGL: number } {
+  const afterCoordinates = normalizeCoordinateText(line).slice(coordinateEndIndex);
+  const numericValues = Array.from(afterCoordinates.matchAll(/-?\d+(?:\.\d+)?/g))
+    .map(match => Number(match[0]))
+    .filter(Number.isFinite);
+
+  // Preserve the original application's input convention:
+  // two or more trailing numbers -> second-to-last is MSL, last is AGL;
+  // one trailing number -> treat as AGL.
+  if (numericValues.length >= 2) {
+    return {
+      heightMSL: numericValues[numericValues.length - 2],
+      heightAGL: numericValues[numericValues.length - 1],
+    };
+  }
+  if (numericValues.length === 1) {
+    return { heightMSL: 0, heightAGL: numericValues[0] };
+  }
+  return { heightMSL: 0, heightAGL: 0 };
+}
+
+function looksLikeHeader(line: string): boolean {
+  const lower = line.toLowerCase();
+  return (
+    (lower.includes("latitude") && lower.includes("longitude")) ||
+    (lower.includes("lat") && lower.includes("lon") && lower.includes("height")) ||
+    lower.startsWith("obstacleid") ||
+    lower.startsWith("obstacle id")
+  );
+}
+
+export function parseObstacleText(text: string): {
+  obstacles: ObstacleInput[];
+  unparsedLines: Array<{ lineNumber: number; text: string }>;
+  skippedDetermined: number;
+} {
+  const rawLines = text.split(/\r?\n/);
+  const obstacles: ObstacleInput[] = [];
+  const unparsedLines: Array<{ lineNumber: number; text: string }> = [];
+  let skippedDetermined = 0;
+
+  rawLines.forEach((rawLine, rawIndex) => {
+    const line = rawLine.trim();
+    if (!line) return;
+    if (looksLikeHeader(line)) return;
+
+    if (line.toLowerCase().includes("determined")) {
+      skippedDetermined += 1;
+      return;
+    }
+
+    const coordinates = parseCoordinates(line);
+    if (!coordinates) {
+      unparsedLines.push({ lineNumber: rawIndex + 1, text: line.slice(0, 180) });
+      return;
+    }
+
+    const { heightMSL, heightAGL } = extractHeights(line, coordinates.endIndex);
+
+    obstacles.push({
+      id: `${rawIndex + 1}`,
+      obstacleId: extractObstacleId(line, rawIndex),
+      latitude: coordinates.latitude,
+      longitude: coordinates.longitude,
+      heightMSL,
+      heightAGL,
+      status: "",
+    });
+  });
+
+  return { obstacles, unparsedLines, skippedDetermined };
+}
+
+/** Status severity rank — higher is worse. */
 function statusRank(status: string): number {
   if (status === "penetration") return 2;
   if (status === "warning") return 1;
   return 0;
 }
 
-/**
- * Pick the most restrictive Part 77 result across multiple airports.
- * Priority: penetration > warning > clear.
- * Within the same status, higher penetration height wins.
- * Ties broken by closest airport (lowest distance).
- */
+/** Pick the most restrictive Part 77 result across multiple airports. */
 function pickWorstResult(results: Part77Result[]): Part77Result {
   return results.reduce((worst, r) => {
     const wRank = statusRank(worst.status);
     const rRank = statusRank(r.status);
     if (rRank > wRank) return r;
     if (rRank < wRank) return worst;
-    // Same status — compare penetration depth, then distance
-    const wDepth = (worst as any).penetrationHeight ?? 0;
-    const rDepth = (r as any).penetrationHeight ?? 0;
+    const wDepth = worst.penetrationHeight ?? 0;
+    const rDepth = r.penetrationHeight ?? 0;
     if (rDepth > wDepth) return r;
     if (rDepth < wDepth) return worst;
     return r.distance < worst.distance ? r : worst;
@@ -57,94 +247,43 @@ function pickWorstResult(results: Part77Result[]): Part77Result {
 
 /**
  * Maximum search radius (NM) to cover all Part 77 surfaces.
- *   Horizontal surface: 10,000 ft ≈ 1.65 NM
- *   Conical surface:   14,000 ft ≈ 2.30 NM
- *   Precision approach: 50,000 ft from runway end ≈ up to ~9 NM from ARP
- * Use 10 NM to ensure full coverage including long precision approach surfaces.
+ * Precision approach surfaces can extend roughly 9 NM from the airport area.
  */
 const PART77_SEARCH_RADIUS_NM = 10;
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Analyze obstacles against Part 77 surfaces
   app.post("/api/analyze-obstacles", async (req, res) => {
     try {
       const { text } = req.body;
-      
-      if (!text || typeof text !== 'string') {
+
+      if (!text || typeof text !== "string") {
         return res.status(400).json({ error: "Text input is required" });
       }
 
-      // Parse obstacle data from text
-      const lines = text.split('\n').filter(line => line.trim());
-      const obstacles = [];
-      
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        
-        // Skip if contains "Determined" (case insensitive)
-        if (line.toLowerCase().includes('determined')) {
-          continue;
-        }
-        
-        // Extract coordinates using regex for DMS format
-        const latMatch = line.match(/(\d+)°\s*(\d+)'\s*([\d.]+)"\s*([NS])/);
-        const lonMatch = line.match(/(\d+)°\s*(\d+)'\s*([\d.]+)"\s*([EW])/);
-        
-        if (latMatch && lonMatch) {
-          const latitude = dmsToDecimal(latMatch[0]);
-          const longitude = dmsToDecimal(lonMatch[0]);
-          
-          if (latitude !== null && longitude !== null) {
-            // Extract obstacle ID (first word/sequence)
-            const obstacleId = line.split(/\s+/)[0] || `OBS-${i + 1}`;
-            
-            // Extract numbers from the portion AFTER coordinates
-            // Second to last number = MSL, last number = AGL
-            const coordEndIndex = Math.max(
-              line.indexOf(lonMatch[0]) + lonMatch[0].length,
-              line.indexOf(latMatch[0]) + latMatch[0].length
-            );
-            const afterCoords = line.substring(coordEndIndex);
-            const numbersAfterCoords = afterCoords.match(/\d+/g);
-            
-            let heightMSL = 0;
-            let heightAGL = 0;
-            
-            if (numbersAfterCoords && numbersAfterCoords.length >= 2) {
-              heightAGL = parseInt(numbersAfterCoords[numbersAfterCoords.length - 1], 10);
-              heightMSL = parseInt(numbersAfterCoords[numbersAfterCoords.length - 2], 10);
-            } else if (numbersAfterCoords && numbersAfterCoords.length === 1) {
-              heightAGL = parseInt(numbersAfterCoords[0], 10);
-            }
-            
-            obstacles.push({
-              id: `${i + 1}`,
-              obstacleId,
-              latitude,
-              longitude,
-              heightMSL,
-              heightAGL,
-              status: '',
-            });
-          }
-        }
-      }
+      const { obstacles, unparsedLines, skippedDetermined } = parseObstacleText(text);
 
       if (obstacles.length === 0) {
-        return res.status(400).json({ error: "No valid obstacles found in text" });
+        return res.status(400).json({
+          error: "No valid obstacles found in text",
+          details: "No coordinate pairs were recognized. The app accepts decimal degrees and common DMS/FAA DMS formats.",
+          supportedExamples: [
+            "OBS-001,47.4502,-122.3088,485,Tower",
+            "OBS-002 47° 27' 00.72\" N 122° 18' 31.68\" W 650 120",
+            "OBS-003 47-27-00.72N 122-18-31.68W 650 120",
+          ],
+          unparsedLines: unparsedLines.slice(0, 8),
+        });
       }
 
-      // Analyze each obstacle
-      const results = [];
+      const results: Part77Result[] = [];
       for (let i = 0; i < obstacles.length; i++) {
         let obstacle = obstacles[i];
 
-        // Find the nearest airport first — used for MSL calculation when only AGL is known
         const nearestResult = findNearestAirport(obstacle);
         if (!nearestResult) continue;
 
-        // If we only have AGL (no MSL), estimate MSL = AGL + nearest airport elevation.
-        // The nearest airport is the best proxy for local ground elevation.
+        // When the source provides only AGL, retain the legacy fallback behavior.
+        // This is an estimate, not surveyed site elevation.
         if ((!obstacle.heightMSL || obstacle.heightMSL === 0) && obstacle.heightAGL) {
           const airportElevation = nearestResult.airport.elevation_ft || 0;
           obstacle = {
@@ -153,49 +292,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
         }
 
-        // Evaluate against ALL airports within the Part 77 search radius.
-        // Part 77 surfaces extend to different airports, not just the nearest one.
-        // A precision ILS approach surface can extend ~9 NM; horizontal/conical ~2.3 NM.
         let nearbyAirports = findAirportsWithinRadius(obstacle, PART77_SEARCH_RADIUS_NM);
-
-        // Always include the nearest airport even if it falls outside the search radius
-        // (handles edge cases where obstacle is far from all airports)
         const nearestIncluded = nearbyAirports.some(
-          a => a.airport.ident === nearestResult.airport.ident
+          a => a.airport.ident === nearestResult.airport.ident,
         );
         if (!nearestIncluded) {
           nearbyAirports = [nearestResult, ...nearbyAirports];
         }
 
-        // Run Part 77 analysis against each nearby airport
-        const candidateResults: Part77Result[] = nearbyAirports.map(({ airport, distance }, j) =>
-          createPart77Result(obstacle, airport, distance, i)
+        const candidateResults: Part77Result[] = nearbyAirports.map(({ airport, distance }) =>
+          createPart77Result(obstacle, airport, distance, i),
         );
 
-        // Keep the worst-case result (most restrictive surface penetration)
-        const worstResult = pickWorstResult(candidateResults);
-        results.push(worstResult);
+        if (candidateResults.length > 0) {
+          results.push(pickWorstResult(candidateResults));
+        }
       }
 
-      // Validate results
       const validatedResults = z.array(part77ResultSchema).parse(results);
-      
-      res.json({ 
+
+      res.json({
         success: true,
         count: validatedResults.length,
+        parsedCount: obstacles.length,
+        skippedDetermined,
+        unparsedCount: unparsedLines.length,
+        unparsedLines: unparsedLines.slice(0, 8),
         results: validatedResults,
       });
-
     } catch (error) {
       console.error("Error analyzing obstacles:", error);
-      res.status(500).json({ 
+      res.status(500).json({
         error: "Failed to analyze obstacles",
-        details: error instanceof Error ? error.message : "Unknown error"
+        details: error instanceof Error ? error.message : "Unknown error",
       });
     }
   });
 
-  const httpServer = createServer(app);
-
-  return httpServer;
+  return createServer(app);
 }
