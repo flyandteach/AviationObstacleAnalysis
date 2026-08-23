@@ -26,7 +26,7 @@ export default function TextInput({ onTextSubmit }: TextInputProps) {
         <Textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Paste your obstacle data here (CSV format or tab-delimited)&#10;&#10;Example:&#10;ObstacleID,Latitude,Longitude,Height,Type&#10;OBS-001,47.4502,-122.3088,485,Tower&#10;OBS-002,47.6199,-117.5339,328,Building"
+          placeholder={`Paste obstacle data here. Supported coordinate formats include decimal degrees and DMS.\n\nExamples:\nObstacleID,Latitude,Longitude,Height,Type\nOBS-001,47.4502,-122.3088,485,Tower\nOBS-002 47° 27' 00.72\" N 122° 18' 31.68\" W 650 120\nOBS-003 47-27-00.72N 122-18-31.68W 650 120`}
           className="min-h-[300px] font-mono text-sm resize-y"
           data-testid="input-obstacle-data"
         />
@@ -42,11 +42,16 @@ export default function TextInput({ onTextSubmit }: TextInputProps) {
           </Button>
         )}
       </div>
-      
+
+      <div className="text-xs text-muted-foreground">
+        Accepted coordinates: signed decimal degrees (47.4502, -122.3088), DMS with symbols,
+        decimal degrees with N/S/E/W, and FAA-style hyphenated DMS. Header rows are ignored.
+      </div>
+
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ClipboardPaste className="w-4 h-4" />
-          <span>{text.split('\n').filter(line => line.trim()).length} lines</span>
+          <span>{text.split("\n").filter(line => line.trim()).length} lines</span>
         </div>
         <div className="flex gap-2">
           <Button
