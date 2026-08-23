@@ -16,6 +16,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Test obstacle parser
+        run: npx tsx scripts/test-obstacle-parser.ts
       - run: npm run check
       - run: npm run build
       - name: Build Docker image
