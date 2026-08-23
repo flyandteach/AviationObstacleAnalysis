@@ -7,6 +7,13 @@ export interface ParsedObstacleText {
   sourceFormat: "oeaaa-table" | "rows";
 }
 
+interface CoordinateMatch {
+  value: number;
+  index: number;
+  end: number;
+  raw: string;
+}
+
 const ASN_PATTERN = /\b(\d{4}-[A-Z0-9]{3,4}-\d+-[A-Z0-9]+)\b/gi;
 
 function normalizeText(value: string): string {
@@ -18,27 +25,29 @@ function normalizeText(value: string): string {
     .replace(/[″”]/g, '"');
 }
 
-function dmsToDecimal(value: string, latitude: boolean): number | null {
+function dmsPartsToDecimal(degrees: number, minutes: number, seconds: number, direction: string): number | null {
+  if (![degrees, minutes, seconds].every(Number.isFinite)) return null;
+  if (minutes < 0 || minutes >= 60 || seconds < 0 || seconds >= 60) return null;
+  const max = /[NS]/i.test(direction) ? 90 : 180;
+  if (degrees < 0 || degrees > max) return null;
+  let decimal = degrees + minutes / 60 + seconds / 3600;
+  if (/[SW]/i.test(direction)) decimal = -decimal;
+  return decimal;
+}
+
+function coordinateFromText(value: string, latitude: boolean): number | null {
   const normalized = normalizeText(value).trim();
   const hemisphere = latitude ? "NS" : "EW";
-  const patterns = [
+  const dmsPatterns = [
     new RegExp(`(\\d{1,3})\\s*(?:°|-)\\s*(\\d{1,2})\\s*(?:'|-)\\s*(\\d{1,2}(?:\\.\\d+)?)\\s*(?:\")?\\s*([${hemisphere}])`, "i"),
     new RegExp(`(\\d{1,3})\\s+(\\d{1,2})\\s+(\\d{1,2}(?:\\.\\d+)?)\\s*([${hemisphere}])`, "i"),
   ];
 
-  for (const pattern of patterns) {
+  for (const pattern of dmsPatterns) {
     const match = normalized.match(pattern);
     if (!match) continue;
-    const degrees = Number(match[1]);
-    const minutes = Number(match[2]);
-    const seconds = Number(match[3]);
-    if (![degrees, minutes, seconds].every(Number.isFinite)) continue;
-    if (minutes < 0 || minutes >= 60 || seconds < 0 || seconds >= 60) continue;
-    const max = latitude ? 90 : 180;
-    if (degrees < 0 || degrees > max) continue;
-    let decimal = degrees + minutes / 60 + seconds / 3600;
-    if (/[SW]/i.test(match[4])) decimal = -decimal;
-    return decimal;
+    const decimal = dmsPartsToDecimal(Number(match[1]), Number(match[2]), Number(match[3]), match[4]);
+    if (decimal !== null) return decimal;
   }
 
   const hemiDecimal = normalized.match(new RegExp(`(-?\\d{1,3}(?:\\.\\d+)?)\\s*°?\\s*([${hemisphere}])`, "i"));
@@ -54,6 +63,27 @@ function dmsToDecimal(value: string, latitude: boolean): number | null {
     const decimal = Number(normalized);
     const max = latitude ? 90 : 180;
     if (Number.isFinite(decimal) && decimal >= -max && decimal <= max) return decimal;
+  }
+
+  return null;
+}
+
+function findHemisphereCoordinate(text: string, latitude: boolean, startAt = 0): CoordinateMatch | null {
+  const source = normalizeText(text).slice(startAt);
+  const hemisphere = latitude ? "NS" : "EW";
+  const patterns = [
+    new RegExp(`(\\d{1,3})\\s*(?:°|-)\\s*(\\d{1,2})\\s*(?:'|-)\\s*(\\d{1,2}(?:\\.\\d+)?)\\s*(?:\")?\\s*([${hemisphere}])`, "i"),
+    new RegExp(`(\\d{1,3})\\s+(\\d{1,2})\\s+(\\d{1,2}(?:\\.\\d+)?)\\s*([${hemisphere}])`, "i"),
+    new RegExp(`(-?\\d{1,3}(?:\\.\\d+)?)\\s*°?\\s*([${hemisphere}])`, "i"),
+  ];
+
+  for (const pattern of patterns) {
+    const match = source.match(pattern);
+    if (!match || match.index === undefined) continue;
+    const value = coordinateFromText(match[0], latitude);
+    if (value === null) continue;
+    const index = startAt + match.index;
+    return { value, index, end: index + match[0].length, raw: match[0] };
   }
 
   return null;
@@ -75,8 +105,6 @@ function isNoiseCell(value: string): boolean {
 }
 
 function stripMarkdownLinks(text: string): string {
-  // Keep the visible label and discard the URL. This prevents the ASN from
-  // appearing twice when copied through a Markdown-aware client.
   return text.replace(/\[([^\]]+)\]\([^\n)]+\)/g, "$1");
 }
 
@@ -87,19 +115,14 @@ function splitClipboardCells(text: string): string[] {
     .filter(cell => !isNoiseCell(cell));
 }
 
+function extractStatus(body: string, cells: string[]): string {
+  const known = body.match(/Determined\s*-\s*(?:No\s+Hazard|Hazard)|Determined|Pending|Evaluating|Studying|Circularized|Withdrawn|Terminated/iu);
+  if (known) return known[0].replace(/\s+/g, " ").trim();
+  return cells[0] ?? "Unknown";
+}
+
 function parseOeaaaClipboard(text: string): ParsedObstacleText | null {
   const normalized = stripMarkdownLinks(normalizeText(text));
-  const headerText = normalized.toLowerCase();
-
-  // Detect the actual FAA results structure, not a particular clipboard rendering.
-  // This works for Markdown, plain text, and tab-delimited browser copies.
-  const hasHeaders =
-    /\basn\b/i.test(normalized) &&
-    /\bstatus\b/i.test(normalized) &&
-    /\blatitude\b/i.test(normalized) &&
-    /\blongitude\b/i.test(normalized) &&
-    /\belevation\b/i.test(normalized) &&
-    /\bagl\b/i.test(normalized);
 
   ASN_PATTERN.lastIndex = 0;
   const starts: Array<{ index: number; end: number; asn: string }> = [];
@@ -108,7 +131,9 @@ function parseOeaaaClipboard(text: string): ParsedObstacleText | null {
     starts.push({ index: match.index, end: match.index + match[0].length, asn: match[1].toUpperCase() });
   }
 
-  if (starts.length === 0 || (!hasHeaders && !headerText.includes("oeaaa.faa.gov"))) return null;
+  // An FAA ASN is distinctive enough to use as the record delimiter. Do not depend
+  // on Markdown, URLs, HTML, or a particular browser clipboard representation.
+  if (starts.length === 0) return null;
 
   const obstacles: ObstacleInput[] = [];
   const unparsedLines: Array<{ lineNumber: number; text: string }> = [];
@@ -120,46 +145,42 @@ function parseOeaaaClipboard(text: string): ParsedObstacleText | null {
     const body = normalized.slice(start.end, end);
     const cells = splitClipboardCells(body);
 
-    // Expected FAA results columns after ASN:
-    // Status, Structure, Duration, City, State, Latitude, Longitude, Elevation, AGL.
-    // Locate the coordinate cells semantically so harmless extra clipboard cells do not shift the record.
-    const latIndex = cells.findIndex(cell => dmsToDecimal(cell, true) !== null && /[Nn]|^-?\d{1,2}(?:\.\d+)?$/.test(cell));
-    const lonIndex = latIndex >= 0
-      ? cells.findIndex((cell, idx) => idx > latIndex && dmsToDecimal(cell, false) !== null && /[EeWw]|^-?\d{1,3}(?:\.\d+)?$/.test(cell))
-      : -1;
+    const latitudeMatch = findHemisphereCoordinate(body, true);
+    const longitudeMatch = latitudeMatch ? findHemisphereCoordinate(body, false, latitudeMatch.end) : null;
 
-    if (latIndex < 5 || lonIndex <= latIndex) {
+    if (!latitudeMatch || !longitudeMatch) {
       unparsedLines.push({ lineNumber: i + 1, text: `${start.asn}: latitude/longitude fields were not recognized` });
       continue;
     }
 
-    const status = cells[0] ?? "";
-    const structure = cells[1] ?? "";
-    const state = cells[latIndex - 1] ?? "";
-    const latitude = dmsToDecimal(cells[latIndex], true);
-    const longitude = dmsToDecimal(cells[lonIndex], false);
+    const beforeLatitude = body.slice(0, latitudeMatch.index);
+    const stateMatches = Array.from(beforeLatitude.matchAll(/\b[A-Z]{2}\b/g));
+    const state = stateMatches.length ? stateMatches[stateMatches.length - 1][0] : "";
 
-    const numericAfter = cells.slice(lonIndex + 1)
-      .map(cell => cell.replace(/[^0-9+.-]/g, ""))
-      .filter(cell => /^[-+]?\d+(?:\.\d+)?$/.test(cell))
-      .map(Number)
+    const afterLongitude = body.slice(longitudeMatch.end);
+    const numericAfter = Array.from(afterLongitude.matchAll(/[-+]?\d+(?:\.\d+)?/g))
+      .map(item => Number(item[0]))
       .filter(Number.isFinite);
 
     const siteElevation = numericAfter[0];
     const heightAGL = numericAfter[1];
+    const status = extractStatus(body, cells);
+
+    // When cells survive clipboard transfer, the second field is Structure.
+    // If the browser collapses the table to a single text run, structure type is
+    // intentionally left generic because it does not affect the Part 77 geometry.
+    const structure = cells.length >= 6 ? cells[1] : "FAA OE/AAA Structure";
 
     if (
-      latitude === null ||
-      longitude === null ||
-      !/^[A-Z]{2}$/i.test(state) ||
+      !/^[A-Z]{2}$/.test(state) ||
       !Number.isFinite(siteElevation) ||
       !Number.isFinite(heightAGL)
     ) {
-      unparsedLines.push({ lineNumber: i + 1, text: `${start.asn}: FAA record fields were incomplete or malformed` });
+      unparsedLines.push({ lineNumber: i + 1, text: `${start.asn}: FAA elevation/AGL fields were incomplete or malformed` });
       continue;
     }
 
-    if (status.toLowerCase().includes("determined")) {
+    if (/determined/i.test(status)) {
       skippedDetermined += 1;
       continue;
     }
@@ -167,8 +188,8 @@ function parseOeaaaClipboard(text: string): ParsedObstacleText | null {
     obstacles.push({
       id: String(i + 1),
       obstacleId: start.asn,
-      latitude,
-      longitude,
+      latitude: latitudeMatch.value,
+      longitude: longitudeMatch.value,
       heightMSL: siteElevation + heightAGL,
       heightAGL,
       type: structure,
@@ -185,29 +206,29 @@ function parseRow(line: string, index: number): ObstacleInput | null {
   if (/latitude/i.test(normalized) && /longitude/i.test(normalized)) return null;
   if (/determined/i.test(normalized)) return null;
 
-  const latDms = normalized.match(/(\d{1,3})\s*(?:°|-)\s*(\d{1,2})\s*(?:'|-)\s*(\d{1,2}(?:\.\d+)?)\s*(?:")?\s*([NS])/i);
-  const lonDms = normalized.match(/(\d{1,3})\s*(?:°|-)\s*(\d{1,2})\s*(?:'|-)\s*(\d{1,2}(?:\.\d+)?)\s*(?:")?\s*([EW])/i);
+  const latMatch = findHemisphereCoordinate(normalized, true);
+  const lonMatch = latMatch ? findHemisphereCoordinate(normalized, false, latMatch.end) : null;
 
   let latitude: number | null = null;
   let longitude: number | null = null;
   let coordinateEnd = -1;
 
-  if (latDms && lonDms && latDms.index !== undefined && lonDms.index !== undefined) {
-    latitude = dmsToDecimal(latDms[0], true);
-    longitude = dmsToDecimal(lonDms[0], false);
-    coordinateEnd = Math.max(latDms.index + latDms[0].length, lonDms.index + lonDms[0].length);
+  if (latMatch && lonMatch) {
+    latitude = latMatch.value;
+    longitude = lonMatch.value;
+    coordinateEnd = lonMatch.end;
   } else {
     const decimalPair = normalized.match(/(-?\d{1,2}(?:\.\d+))\s*[,;\t| ]+\s*(-?\d{1,3}(?:\.\d+))/);
     if (decimalPair && decimalPair.index !== undefined) {
-      latitude = dmsToDecimal(decimalPair[1], true);
-      longitude = dmsToDecimal(decimalPair[2], false);
+      latitude = coordinateFromText(decimalPair[1], true);
+      longitude = coordinateFromText(decimalPair[2], false);
       coordinateEnd = decimalPair.index + decimalPair[0].length;
     }
   }
 
   if (latitude === null || longitude === null || coordinateEnd < 0) return null;
 
-  const numbers = Array.from(normalized.slice(coordinateEnd).matchAll(/-?\d+(?:\.\d+)?/g)).map(m => Number(m[0]));
+  const numbers = Array.from(normalized.slice(coordinateEnd).matchAll(/-?\d+(?:\.\d+)?/g)).map(item => Number(item[0]));
   let heightMSL = 0;
   let heightAGL = 0;
   if (numbers.length >= 2) {
