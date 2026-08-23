@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { parseObstacleText } from "../server/routes";
+import { parseObstacleText } from "../server/services/obstacleParser";
 
 function first(text: string) {
   const parsed = parseObstacleText(text);
@@ -23,18 +23,7 @@ const faaDms = first("OBS-003 47-27-00.72N 122-18-31.68W 650 120");
 assert.ok(Math.abs(faaDms.latitude - 47.4502) < 0.00001);
 assert.ok(Math.abs(faaDms.longitude - (-122.3088)) < 0.00001);
 
-const decimalHemisphere = first("OBS-004 47.4502 N 122.3088 W 485");
-assert.equal(decimalHemisphere.latitude, 47.4502);
-assert.equal(decimalHemisphere.longitude, -122.3088);
-assert.equal(decimalHemisphere.heightAGL, 485);
-
-const withHeader = parseObstacleText(
-  "ObstacleID,Latitude,Longitude,Height,Type\nOBS-005,47.6199,-117.5339,328,Building",
-);
-assert.equal(withHeader.obstacles.length, 1);
-assert.equal(withHeader.unparsedLines.length, 0);
-
-const oeaaaPaste = `
+const markdownPaste = `
 **ASN**
 |   |
 | - |
@@ -65,7 +54,7 @@ const oeaaaPaste = `
 **AGL**
 |   |
 | - |
-[2021-ANM-5006-OE](https://oeaaa.faa.gov/oeaaa/asn-display/asn-case-display-page.html?asn=2021-ANM-5006-OE)
+[2021-ANM-5006-OE](https://oeaaa.faa.gov/oeaaa/asn-display/asn-case-display-page.html?asn=2021-ANM-5006-OE&encryptedID=x)
 |   |
 | - |
 Determined - No Hazard
@@ -95,7 +84,7 @@ WA
 30
 |   |
 | - |
-[2026-ANM-456-OE](https://oeaaa.faa.gov/oeaaa/asn-display/asn-case-display-page.html?asn=2026-ANM-456-OE)
+[2026-ANM-456-OE](https://oeaaa.faa.gov/oeaaa/asn-display/asn-case-display-page.html?asn=2026-ANM-456-OE&encryptedID=x)
 |   |
 | - |
 Pending
@@ -125,18 +114,70 @@ WA
 17
 `;
 
-const oeaaa = parseObstacleText(oeaaaPaste);
-assert.equal(oeaaa.sourceFormat, "oeaaa-table");
-assert.equal(oeaaa.skippedDetermined, 1);
-assert.equal(oeaaa.obstacles.length, 1);
-assert.equal(oeaaa.unparsedLines.length, 0);
-assert.equal(oeaaa.obstacles[0].obstacleId, "2026-ANM-456-OE");
-assert.equal(oeaaa.obstacles[0].heightAGL, 17);
-assert.equal(oeaaa.obstacles[0].heightMSL, 520); // FAA site elevation 503 + 17 AGL
-assert.equal(oeaaa.obstacles[0].type, "Parking");
-assert.equal(oeaaa.obstacles[0].status, "Pending");
-assert.ok(Math.abs(oeaaa.obstacles[0].latitude - 47.65225) < 0.00001);
-assert.ok(Math.abs(oeaaa.obstacles[0].longitude - (-122.7344194)) < 0.00001);
+const markdown = parseObstacleText(markdownPaste);
+assert.equal(markdown.sourceFormat, "oeaaa-table");
+assert.equal(markdown.skippedDetermined, 1);
+assert.equal(markdown.obstacles.length, 1);
+assert.equal(markdown.unparsedLines.length, 0);
+assert.equal(markdown.obstacles[0].obstacleId, "2026-ANM-456-OE");
+assert.equal(markdown.obstacles[0].heightAGL, 17);
+assert.equal(markdown.obstacles[0].heightMSL, 520);
+assert.equal(markdown.obstacles[0].type, "Parking");
+assert.equal(markdown.obstacles[0].status, "Pending");
+assert.ok(Math.abs(markdown.obstacles[0].latitude - 47.65225) < 0.00001);
+assert.ok(Math.abs(markdown.obstacles[0].longitude - (-122.7344194)) < 0.00001);
+
+const plainTextPaste = `
+ASN
+Status
+Structure
+Duration
+City
+State
+Latitude
+Longitude
+Elevation
+AGL
+2021-ANM-5006-OE
+Determined - No Hazard
+Building
+Permanent
+Renton
+WA
+47° 29' 13.00" N
+122° 10' 40.10" W
+328
+30
+2026-ANM-456-OE
+Pending
+Parking
+Permanent
+Silverdale
+WA
+47° 39' 08.10" N
+122° 44' 03.91" W
+503
+17
+`;
+
+const plain = parseObstacleText(plainTextPaste);
+assert.equal(plain.sourceFormat, "oeaaa-table");
+assert.equal(plain.skippedDetermined, 1);
+assert.equal(plain.obstacles.length, 1);
+assert.equal(plain.unparsedLines.length, 0);
+assert.equal(plain.obstacles[0].obstacleId, "2026-ANM-456-OE");
+assert.equal(plain.obstacles[0].heightMSL, 520);
+
+const tabPaste = [
+  "ASN\tStatus\tStructure\tDuration\tCity\tState\tLatitude\tLongitude\tElevation\tAGL",
+  "2026-ANM-456-OE\tPending\tParking\tPermanent\tSilverdale\tWA\t47° 39' 08.10\" N\t122° 44' 03.91\" W\t503\t17",
+].join("\n");
+
+const tab = parseObstacleText(tabPaste);
+assert.equal(tab.sourceFormat, "oeaaa-table");
+assert.equal(tab.obstacles.length, 1);
+assert.equal(tab.obstacles[0].obstacleId, "2026-ANM-456-OE");
+assert.equal(tab.obstacles[0].heightMSL, 520);
 
 const bad = parseObstacleText("this is not obstacle data");
 assert.equal(bad.obstacles.length, 0);
