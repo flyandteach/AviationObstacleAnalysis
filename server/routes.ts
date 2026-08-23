@@ -18,6 +18,13 @@ interface ParsedCoordinates {
   format: "dms" | "decimal-hemisphere" | "decimal";
 }
 
+export interface ParsedObstacleText {
+  obstacles: ObstacleInput[];
+  unparsedLines: Array<{ lineNumber: number; text: string }>;
+  skippedDetermined: number;
+  sourceFormat: "oeaaa-table" | "rows";
+}
+
 function normalizeCoordinateText(value: string): string {
   return value
     .replace(/\u00a0/g, " ")
@@ -46,9 +53,7 @@ function dmsPartsToDecimal(
 function findDmsCoordinate(line: string, latitude: boolean): CoordinateMatch | null {
   const hemisphere = latitude ? "NS" : "EW";
   const patterns = [
-    // 47° 27' 00.72" N, 47º27'00.72N, 47-27-00.72N
     new RegExp(`(\\d{1,3})\\s*(?:°|-)\\s*(\\d{1,2})\\s*(?:'|-)\\s*(\\d{1,2}(?:\\.\\d+)?)\\s*(?:\")?\\s*([${hemisphere}])`, "i"),
-    // 47 27 00.72 N
     new RegExp(`(\\d{1,3})\\s+(\\d{1,2})\\s+(\\d{1,2}(?:\\.\\d+)?)\\s*([${hemisphere}])`, "i"),
   ];
 
@@ -94,6 +99,22 @@ function findDecimalHemisphereCoordinate(line: string, latitude: boolean): Coord
   };
 }
 
+function parseSingleCoordinate(rawValue: string, latitude: boolean): number | null {
+  const value = normalizeCoordinateText(rawValue).trim();
+
+  const dms = findDmsCoordinate(value, latitude);
+  if (dms) return dms.value;
+
+  const hemisphere = findDecimalHemisphereCoordinate(value, latitude);
+  if (hemisphere) return hemisphere.value;
+
+  const decimalMatch = value.match(/^-?\d{1,3}(?:\.\d+)?$/);
+  if (!decimalMatch) return null;
+  const decimal = Number(decimalMatch[0]);
+  const max = latitude ? 90 : 180;
+  return Number.isFinite(decimal) && decimal >= -max && decimal <= max ? decimal : null;
+}
+
 function parseCoordinates(rawLine: string): ParsedCoordinates | null {
   const line = normalizeCoordinateText(rawLine);
 
@@ -108,7 +129,6 @@ function parseCoordinates(rawLine: string): ParsedCoordinates | null {
     };
   }
 
-  // Decimal degrees with hemisphere, e.g. 47.4502 N, 122.3088 W
   const latHemisphere = findDecimalHemisphereCoordinate(line, true);
   const lonHemisphere = findDecimalHemisphereCoordinate(line, false);
   if (latHemisphere && lonHemisphere) {
@@ -120,8 +140,6 @@ function parseCoordinates(rawLine: string): ParsedCoordinates | null {
     };
   }
 
-  // Signed decimal-degree pair, comma/tab/semicolon/pipe/space delimited.
-  // Examples: 47.4502,-122.3088 or 47.4502\t-122.3088
   const decimalPair = /(-?\d{1,2}(?:\.\d+))\s*[,;\t| ]+\s*(-?\d{1,3}(?:\.\d+))/g;
   let match: RegExpExecArray | null;
   while ((match = decimalPair.exec(line)) !== null) {
@@ -156,9 +174,6 @@ function extractHeights(line: string, coordinateEndIndex: number): { heightMSL: 
     .map(match => Number(match[0]))
     .filter(Number.isFinite);
 
-  // Preserve the original application's input convention:
-  // two or more trailing numbers -> second-to-last is MSL, last is AGL;
-  // one trailing number -> treat as AGL.
   if (numericValues.length >= 2) {
     return {
       heightMSL: numericValues[numericValues.length - 2],
@@ -181,11 +196,119 @@ function looksLikeHeader(line: string): boolean {
   );
 }
 
-export function parseObstacleText(text: string): {
-  obstacles: ObstacleInput[];
-  unparsedLines: Array<{ lineNumber: number; text: string }>;
-  skippedDetermined: number;
-} {
+const ASN_PATTERN = /\b(\d{4}-[A-Z0-9]{3,4}-\d+-[A-Z0-9]+)\b/i;
+
+function isMarkdownTableNoise(line: string): boolean {
+  const trimmed = line.trim();
+  return (
+    /^\|\s*\|$/.test(trimmed) ||
+    /^\|\s*:?-+:?\s*\|$/.test(trimmed)
+  );
+}
+
+function cleanOeaaaValue(line: string): string {
+  return line
+    .trim()
+    .replace(/^\*\*(.+)\*\*$/, "$1")
+    .trim();
+}
+
+function parseOeaaaTable(text: string): ParsedObstacleText | null {
+  const rawLines = text.split(/\r?\n/);
+  const asnStarts: Array<{ index: number; asn: string }> = [];
+
+  rawLines.forEach((rawLine, index) => {
+    const match = rawLine.match(ASN_PATTERN);
+    if (match) {
+      const previous = asnStarts[asnStarts.length - 1];
+      if (!previous || previous.index !== index) {
+        asnStarts.push({ index, asn: match[1].toUpperCase() });
+      }
+    }
+  });
+
+  if (asnStarts.length === 0) return null;
+
+  // Only treat this as an OE/AAA table when the paste actually resembles the FAA results export.
+  const lowerText = text.toLowerCase();
+  const looksLikeOeaaa =
+    lowerText.includes("oeaaa.faa.gov") ||
+    (lowerText.includes("**asn**") && lowerText.includes("**latitude**") && lowerText.includes("**longitude**"));
+  if (!looksLikeOeaaa) return null;
+
+  const obstacles: ObstacleInput[] = [];
+  const unparsedLines: Array<{ lineNumber: number; text: string }> = [];
+  let skippedDetermined = 0;
+
+  for (let recordIndex = 0; recordIndex < asnStarts.length; recordIndex++) {
+    const start = asnStarts[recordIndex];
+    const endIndex = recordIndex + 1 < asnStarts.length ? asnStarts[recordIndex + 1].index : rawLines.length;
+
+    const values = rawLines
+      .slice(start.index + 1, endIndex)
+      .map(cleanOeaaaValue)
+      .filter(line => line && !isMarkdownTableNoise(line));
+
+    // Expected copied FAA results order:
+    // Status, Structure, Duration, City, State, Latitude, Longitude, Elevation, AGL
+    if (values.length < 9) {
+      unparsedLines.push({
+        lineNumber: start.index + 1,
+        text: `${start.asn}: incomplete FAA OE/AAA record (${values.length}/9 fields found)`,
+      });
+      continue;
+    }
+
+    const [status, structure, _duration, _city, state, latitudeText, longitudeText, elevationText, aglText] = values;
+    const latitude = parseSingleCoordinate(latitudeText, true);
+    const longitude = parseSingleCoordinate(longitudeText, false);
+    const siteElevation = Number(elevationText.replace(/[^0-9+.-]/g, ""));
+    const heightAGL = Number(aglText.replace(/[^0-9+.-]/g, ""));
+
+    if (
+      latitude === null ||
+      longitude === null ||
+      !/^[A-Z]{2}$/i.test(state) ||
+      !Number.isFinite(siteElevation) ||
+      !Number.isFinite(heightAGL)
+    ) {
+      unparsedLines.push({
+        lineNumber: start.index + 1,
+        text: `${start.asn}: could not parse FAA OE/AAA coordinates/elevation fields`,
+      });
+      continue;
+    }
+
+    if (status.toLowerCase().includes("determined")) {
+      skippedDetermined += 1;
+      continue;
+    }
+
+    // FAA OE/AAA "Elevation" is the site/ground elevation MSL and "AGL" is
+    // the structure height. Part 77 screening needs the top-of-structure MSL.
+    const topMSL = siteElevation + heightAGL;
+
+    obstacles.push({
+      id: `${recordIndex + 1}`,
+      obstacleId: start.asn,
+      latitude,
+      longitude,
+      heightMSL: topMSL,
+      heightAGL,
+      type: structure,
+      status,
+    });
+  }
+
+  return {
+    obstacles,
+    unparsedLines,
+    skippedDetermined,
+    sourceFormat: "oeaaa-table",
+  };
+}
+
+function parseRowText(text: string): ParsedObstacleText {
   const rawLines = text.split(/\r?\n/);
   const obstacles: ObstacleInput[] = [];
   const unparsedLines: Array<{ lineNumber: number; text: string }> = [];
@@ -220,7 +343,11 @@ export function parseObstacleText(text: string): {
     });
   });
 
-  return { obstacles, unparsedLines, skippedDetermined };
+  return { obstacles, unparsedLines, skippedDetermined, sourceFormat: "rows" };
+}
+
+export function parseObstacleText(text: string): ParsedObstacleText {
+  return parseOeaaaTable(text) ?? parseRowText(text);
 }
 
 /** Status severity rank — higher is worse. */
@@ -245,10 +372,6 @@ function pickWorstResult(results: Part77Result[]): Part77Result {
   });
 }
 
-/**
- * Maximum search radius (NM) to cover all Part 77 surfaces.
- * Precision approach surfaces can extend roughly 9 NM from the airport area.
- */
 const PART77_SEARCH_RADIUS_NM = 10;
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -260,16 +383,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Text input is required" });
       }
 
-      const { obstacles, unparsedLines, skippedDetermined } = parseObstacleText(text);
+      const { obstacles, unparsedLines, skippedDetermined, sourceFormat } = parseObstacleText(text);
 
       if (obstacles.length === 0) {
         return res.status(400).json({
-          error: "No valid obstacles found in text",
-          details: "No coordinate pairs were recognized. The app accepts decimal degrees and common DMS/FAA DMS formats.",
+          error: "No active obstacles found in text",
+          details: skippedDetermined > 0
+            ? `The FAA OE/AAA paste was recognized, but all ${skippedDetermined} parsed case(s) were already Determined and were skipped.`
+            : "No coordinate records were recognized. Paste FAA OE/AAA results directly, or use decimal/DMS row data.",
+          sourceFormat,
+          skippedDetermined,
           supportedExamples: [
+            "FAA OE/AAA copied results table",
             "OBS-001,47.4502,-122.3088,485,Tower",
             "OBS-002 47° 27' 00.72\" N 122° 18' 31.68\" W 650 120",
-            "OBS-003 47-27-00.72N 122-18-31.68W 650 120",
           ],
           unparsedLines: unparsedLines.slice(0, 8),
         });
@@ -282,8 +409,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const nearestResult = findNearestAirport(obstacle);
         if (!nearestResult) continue;
 
-        // When the source provides only AGL, retain the legacy fallback behavior.
-        // This is an estimate, not surveyed site elevation.
         if ((!obstacle.heightMSL || obstacle.heightMSL === 0) && obstacle.heightAGL) {
           const airportElevation = nearestResult.airport.elevation_ft || 0;
           obstacle = {
@@ -316,6 +441,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         count: validatedResults.length,
         parsedCount: obstacles.length,
         skippedDetermined,
+        sourceFormat,
         unparsedCount: unparsedLines.length,
         unparsedLines: unparsedLines.slice(0, 8),
         results: validatedResults,
