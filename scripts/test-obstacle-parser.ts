@@ -34,6 +34,110 @@ const withHeader = parseObstacleText(
 assert.equal(withHeader.obstacles.length, 1);
 assert.equal(withHeader.unparsedLines.length, 0);
 
+const oeaaaPaste = `
+**ASN**
+|   |
+| - |
+**Status**
+|   |
+| - |
+**Structure**
+|   |
+| - |
+**Duration**
+|   |
+| - |
+**City**
+|   |
+| - |
+**State**
+|   |
+| - |
+**Latitude**
+|   |
+| - |
+**Longitude**
+|   |
+| - |
+**Elevation**
+|   |
+| - |
+**AGL**
+|   |
+| - |
+[2021-ANM-5006-OE](https://oeaaa.faa.gov/oeaaa/asn-display/asn-case-display-page.html?asn=2021-ANM-5006-OE)
+|   |
+| - |
+Determined - No Hazard
+|   |
+| - |
+Building
+|   |
+| - |
+Permanent
+|   |
+| - |
+Renton
+|   |
+| - |
+WA
+|   |
+| - |
+47° 29' 13.00" N
+|   |
+| - |
+122° 10' 40.10" W
+|   |
+| - |
+328
+|   |
+| - |
+30
+|   |
+| - |
+[2026-ANM-456-OE](https://oeaaa.faa.gov/oeaaa/asn-display/asn-case-display-page.html?asn=2026-ANM-456-OE)
+|   |
+| - |
+Pending
+|   |
+| - |
+Parking
+|   |
+| - |
+Permanent
+|   |
+| - |
+Silverdale
+|   |
+| - |
+WA
+|   |
+| - |
+47° 39' 08.10" N
+|   |
+| - |
+122° 44' 03.91" W
+|   |
+| - |
+503
+|   |
+| - |
+17
+`;
+
+const oeaaa = parseObstacleText(oeaaaPaste);
+assert.equal(oeaaa.sourceFormat, "oeaaa-table");
+assert.equal(oeaaa.skippedDetermined, 1);
+assert.equal(oeaaa.obstacles.length, 1);
+assert.equal(oeaaa.unparsedLines.length, 0);
+assert.equal(oeaaa.obstacles[0].obstacleId, "2026-ANM-456-OE");
+assert.equal(oeaaa.obstacles[0].heightAGL, 17);
+assert.equal(oeaaa.obstacles[0].heightMSL, 520); // FAA site elevation 503 + 17 AGL
+assert.equal(oeaaa.obstacles[0].type, "Parking");
+assert.equal(oeaaa.obstacles[0].status, "Pending");
+assert.ok(Math.abs(oeaaa.obstacles[0].latitude - 47.65225) < 0.00001);
+assert.ok(Math.abs(oeaaa.obstacles[0].longitude - (-122.7344194)) < 0.00001);
+
 const bad = parseObstacleText("this is not obstacle data");
 assert.equal(bad.obstacles.length, 0);
 assert.equal(bad.unparsedLines.length, 1);
