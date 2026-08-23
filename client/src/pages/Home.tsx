@@ -73,6 +73,9 @@ export default function Home() {
       const response = await res.json() as {
         success: boolean;
         count: number;
+        parsedCount?: number;
+        unparsedCount?: number;
+        skippedDetermined?: number;
         results: ObstacleResult[];
         error?: string;
       };
@@ -82,9 +85,18 @@ export default function Home() {
       }
 
       setResults(response.results);
+
+      const notes: string[] = [];
+      if ((response.unparsedCount ?? 0) > 0) {
+        notes.push(`${response.unparsedCount} line${response.unparsedCount === 1 ? " was" : "s were"} not recognized`);
+      }
+      if ((response.skippedDetermined ?? 0) > 0) {
+        notes.push(`${response.skippedDetermined} determined line${response.skippedDetermined === 1 ? " was" : "s were"} skipped`);
+      }
+
       toast({
         title: "Analysis complete",
-        description: `Analyzed ${response.count} obstacle${response.count === 1 ? "" : "s"}.`,
+        description: `Analyzed ${response.count} obstacle${response.count === 1 ? "" : "s"}${notes.length ? `. ${notes.join("; ")}.` : "."}`,
       });
     } catch (error) {
       setResults([]);
