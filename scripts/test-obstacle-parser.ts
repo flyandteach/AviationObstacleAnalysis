@@ -116,6 +116,7 @@ WA
 
 const markdown = parseObstacleText(markdownPaste);
 assert.equal(markdown.sourceFormat, "oeaaa-table");
+assert.equal(markdown.detectedAsnCount, 2);
 assert.equal(markdown.skippedDetermined, 1);
 assert.equal(markdown.obstacles.length, 1);
 assert.equal(markdown.unparsedLines.length, 0);
@@ -162,6 +163,7 @@ WA
 
 const plain = parseObstacleText(plainTextPaste);
 assert.equal(plain.sourceFormat, "oeaaa-table");
+assert.equal(plain.detectedAsnCount, 2);
 assert.equal(plain.skippedDetermined, 1);
 assert.equal(plain.obstacles.length, 1);
 assert.equal(plain.unparsedLines.length, 0);
@@ -185,6 +187,26 @@ assert.equal(collapsed.obstacles.length, 1);
 assert.equal(collapsed.obstacles[0].obstacleId, "2026-ANM-456-OE");
 assert.equal(collapsed.obstacles[0].heightMSL, 520);
 assert.equal(collapsed.obstacles[0].heightAGL, 17);
+
+// Some clipboard paths include a visible ASN followed by the same ASN again in a raw URL.
+// The parser must not treat that duplicate as a second record boundary.
+const rawUrlDuplicate = `
+2026-ANM-456-OE https://oeaaa.faa.gov/oeaaa/asn-display/asn-case-display-page.html?asn=2026-ANM-456-OE&encryptedID=x
+Pending
+Parking
+Permanent
+Silverdale
+WA
+47° 39' 08.10" N
+122° 44' 03.91" W
+503
+17
+`;
+const duplicate = parseObstacleText(rawUrlDuplicate);
+assert.equal(duplicate.detectedAsnCount, 1);
+assert.equal(duplicate.obstacles.length, 1);
+assert.equal(duplicate.obstacles[0].obstacleId, "2026-ANM-456-OE");
+assert.equal(duplicate.obstacles[0].heightMSL, 520);
 
 const bad = parseObstacleText("this is not obstacle data");
 assert.equal(bad.obstacles.length, 0);
