@@ -40,21 +40,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const parsed = parseObstacleText(text);
-      const { obstacles, unparsedLines, skippedDetermined, sourceFormat } = parsed;
+      const {
+        obstacles,
+        unparsedLines,
+        skippedDetermined,
+        sourceFormat,
+        detectedAsnCount = 0,
+      } = parsed;
 
       if (obstacles.length === 0) {
         return res.status(400).json({
           error: "No active obstacles found in text",
           details:
             sourceFormat === "oeaaa-table"
-              ? skippedDetermined > 0
-                ? `FAA OE/AAA data was recognized, but all parsed cases were already Determined and were skipped (${skippedDetermined}).`
-                : "FAA OE/AAA data was recognized, but no complete active records could be parsed."
-              : "No obstacle records were recognized. Paste the FAA OE/AAA results table directly or use supported row data.",
+              ? `FAA scanner detected ${detectedAsnCount} ASN record(s), skipped ${skippedDetermined} Determined record(s), and produced 0 active records. ${unparsedLines.length} record(s) could not be completed.`
+              : "No obstacle records were recognized. Paste the FAA OE/AAA results directly or use supported row data.",
           sourceFormat,
+          detectedAsnCount,
           skippedDetermined,
           unparsedCount: unparsedLines.length,
           unparsedLines: unparsedLines.slice(0, 12),
+          inputCharacters: text.length,
         });
       }
 
@@ -95,6 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: true,
         count: validatedResults.length,
         parsedCount: obstacles.length,
+        detectedAsnCount,
         skippedDetermined,
         unparsedCount: unparsedLines.length,
         unparsedLines: unparsedLines.slice(0, 12),
