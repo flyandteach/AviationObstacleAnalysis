@@ -3,7 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
-const APP_BUILD = "oeaaa-clipboard-v3";
+const APP_BUILD = "oeaaa-clipboard-v4";
 
 app.disable("x-powered-by");
 app.use(express.json({ limit: "5mb" }));
@@ -31,8 +31,8 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-      if (logLine.length > 180) {
-        logLine = logLine.slice(0, 179) + "…";
+      if (logLine.length > 300) {
+        logLine = logLine.slice(0, 299) + "…";
       }
       log(logLine);
     }
