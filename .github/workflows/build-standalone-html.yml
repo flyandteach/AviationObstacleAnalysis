@@ -1,0 +1,40 @@
+name: Build standalone HTML
+
+on:
+  push:
+    branches: [self-hosted-app]
+    paths:
+      - 'scripts/build-standalone-html.mjs'
+      - 'attached_assets/**'
+      - '.github/workflows/build-standalone-html.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: self-hosted-app
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: node scripts/build-standalone-html.mjs
+      - name: Commit generated standalone HTML
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add AviationObstacleAnalysis-Standalone.html
+          if git diff --cached --quiet; then
+            echo "No generated changes"
+          else
+            git commit -m "Build standalone offline HTML"
+            git push origin HEAD:self-hosted-app
+          fi
